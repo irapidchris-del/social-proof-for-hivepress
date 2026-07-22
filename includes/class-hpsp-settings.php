@@ -216,7 +216,7 @@ class HPSP_Settings {
 		}
 
 		// Excluded paths, one per line.
-		$paths = isset( $input['exclude_paths'] ) ? sanitize_textarea_field( (string) $input['exclude_paths'] ) : '';
+		$paths = isset( $input['exclude_paths'] ) ? sanitize_textarea_field( wp_unslash( (string) $input['exclude_paths'] ) ) : '';
 		$lines = array_filter( array_map( 'trim', explode( "\n", $paths ) ) );
 
 		$output['exclude_paths'] = implode( "\n", $lines );
@@ -227,7 +227,8 @@ class HPSP_Settings {
 		foreach ( HPSP_Events::types() as $type => $config ) {
 			$event = isset( $input['events'][ $type ] ) && is_array( $input['events'][ $type ] ) ? $input['events'][ $type ] : [];
 
-			$template = isset( $event['template'] ) ? trim( wp_kses( (string) $event['template'], self::allowed_template_tags() ) ) : '';
+			// Settings API passes slashed $_POST values to sanitize callbacks.
+			$template = isset( $event['template'] ) ? trim( wp_kses( wp_unslash( (string) $event['template'] ), self::allowed_template_tags() ) ) : '';
 			$image    = isset( $event['image'] ) ? sanitize_key( $event['image'] ) : '';
 
 			$output['events'][ $type ] = [
