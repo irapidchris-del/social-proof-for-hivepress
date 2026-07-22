@@ -1,0 +1,170 @@
+/* Social Proof for HivePress — admin settings screen. */
+
+.hpsp-layout {
+	display: flex;
+	gap: 24px;
+	align-items: flex-start;
+	max-width: 1200px;
+}
+
+.hpsp-main {
+	flex: 1 1 640px;
+	min-width: 0;
+}
+
+.hpsp-side {
+	flex: 0 0 320px;
+	position: sticky;
+	top: 48px;
+}
+
+.hpsp-tab {
+	display: none;
+}
+
+.hpsp-tab.is-active {
+	display: block;
+}
+
+/* Event cards. */
+
+.hpsp-event-card {
+	margin: 16px 0;
+	padding: 14px 18px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+}
+
+.hpsp-event-card__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 10px;
+	margin-bottom: 4px;
+}
+
+.hpsp-event-card .hpsp-field-label {
+	display: block;
+	margin-bottom: 2px;
+	font-weight: 600;
+}
+
+.hpsp-event-card .hpsp-tokens code {
+	margin-right: 4px;
+	font-size: 11px;
+}
+
+.hpsp-tokens-help {
+	margin-top: 16px;
+}
+
+/* Sidebar boxes. */
+
+.hpsp-box {
+	margin-bottom: 20px;
+	padding: 14px 18px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+}
+
+.hpsp-box h2 {
+	margin-top: 0;
+}
+
+.hpsp-inline-form {
+	display: inline-block;
+	margin-right: 8px;
+}
+
+/* Live preview. */
+
+.hpsp-preview-stage {
+	position: relative;
+	display: flex;
+	height: 180px;
+	padding: 12px;
+	box-sizing: border-box;
+	background: repeating-conic-gradient(#f0f0f1 0% 25%, #fafafa 0% 50%) 50% / 24px 24px;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.hpsp-preview-toast {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	box-sizing: border-box;
+	max-width: 100%;
+	margin: auto 0 0 0;
+	padding: 10px 14px 10px 10px;
+	line-height: 1.4;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	transition: opacity 300ms ease, transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hpsp-preview-toast img,
+.hpsp-preview-toast .hpsp-preview-initial {
+	flex: none;
+	width: 40px;
+	height: 40px;
+	object-fit: cover;
+	background: rgba(127, 127, 127, 0.2);
+}
+
+.hpsp-preview-initial {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.hpsp-preview-content {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.hpsp-preview-content small {
+	margin-top: 2px;
+	font-size: 0.82em;
+	opacity: 0.65;
+}
+
+.hpsp-preview-toast button {
+	flex: none;
+	align-self: flex-start;
+	margin: -2px -4px 0 0;
+	padding: 0 4px;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font-size: 1.25em;
+	line-height: 1;
+	opacity: 0.6;
+	cursor: pointer;
+}
+
+/* Preview animation states. */
+
+.hpsp-preview-toast.hpsp-preview-hidden {
+	opacity: 0;
+}
+
+.hpsp-preview-toast.hpsp-preview-hidden.anim-slide { transform: translateY(18px); }
+.hpsp-preview-toast.hpsp-preview-hidden.anim-pop { transform: scale(0.8); }
+
+@media (max-width: 960px) {
+	.hpsp-layout {
+		flex-direction: column;
+	}
+
+	.hpsp-side {
+		position: static;
+		width: 100%;
+		flex: 1 1 auto;
+	}
+}

@@ -1,0 +1,74 @@
+<?php
+/**
+ * Public REST endpoint serving the popup event feed.
+ *
+ * @package Social_Proof_For_HivePress
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+class HPSP_Rest {
+
+	const API_NAMESPACE = 'hpsp/v1';
+	const CACHE_TTL     = 60; // Seconds the rendered payload is cached server-side.
+
+	/**
+	 * Register hooks.
+	 */
+	public static function init() : void {
+		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
+	}
+
+	/**
+	 * Register the events route.
+	 */
+	public static function register_routes() : void {
+		register_rest_route(
+			self::API_NAMESPACE,
+			'/events',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'get_events' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+	}
+
+	/**
+	 * Serve the rendered event feed.
+	 *
+	 * The feed is identical for every visitor (per-visitor rules run in the
+	 * browser), so it can be cached briefly server-side. The cache is
+	 * invalidated whenever an event is queued or settings are saved.
+	 */
+	public static function get_events() : WP_REST_Response {
+		$settings = HPSP_Settings::get();
+
+		if ( empty( $settings['enabled'] ) ) {
+			return self::respond( [ 'events' => [] ] );
+		}
+
+		$events = get_transient( HPSP_Events::PAYLOAD_CACHE );
+
+		if ( ! is_array( $events ) ) {
+			$events = HPSP_Events::get_display_events();
+
+			set_transient( HPSP_Events::PAYLOAD_CACHE, $events, self::CACHE_TTL );
+		}
+
+		return self::respond( [ 'events' => $events ] );
+	}
+
+	/**
+	 * Build a non-cacheable (browser-side) response.
+	 *
+	 * @param array $data Response body.
+	 */
+	protected static function respond( array $data ) : WP_REST_Response {
+		$response = new WP_REST_Response( $data, 200 );
+
+		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+
+		return $response;
+	}
+}
