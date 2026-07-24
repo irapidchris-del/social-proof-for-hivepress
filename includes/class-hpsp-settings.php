@@ -188,7 +188,9 @@ class HPSP_Settings {
 		];
 
 		foreach ( $int_bounds as $key => $bounds ) {
-			$value          = isset( $input[ $key ] ) ? absint( $input[ $key ] ) : $defaults[ $key ];
+			// Cast (not absint) so out-of-range negatives clamp to the minimum
+			// instead of having their sign flipped.
+			$value          = isset( $input[ $key ] ) ? (int) $input[ $key ] : $defaults[ $key ];
 			$output[ $key ] = min( max( $value, $bounds[0] ), $bounds[1] );
 		}
 
