@@ -3,7 +3,7 @@
  * Plugin Name:       Social Proof for HivePress
  * Plugin URI:        https://github.com/irapidchris-del/social-proof-for-hivepress
  * Description:       Live, highly customisable social-proof toast popups for HivePress marketplaces — recent sign-ups, listings, bookings, reviews, sales and more.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Chris B.
@@ -16,7 +16,7 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
-define( 'HPSP_VERSION', '1.0.0' );
+define( 'HPSP_VERSION', '1.1.0' );
 define( 'HPSP_FILE', __FILE__ );
 define( 'HPSP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HPSP_URL', plugin_dir_url( __FILE__ ) );
@@ -26,6 +26,7 @@ require_once HPSP_DIR . 'includes/class-hpsp-events.php';
 require_once HPSP_DIR . 'includes/class-hpsp-rest.php';
 require_once HPSP_DIR . 'includes/class-hpsp-frontend.php';
 require_once HPSP_DIR . 'includes/class-hpsp-admin.php';
+require_once HPSP_DIR . 'includes/class-hpsp-updater.php';
 
 /**
  * Boot the plugin once all plugins (including HivePress) are loaded.
@@ -39,6 +40,11 @@ add_action( 'plugins_loaded', function () {
 
 	if ( is_admin() ) {
 		HPSP_Admin::init();
+	}
+
+	// Update checks run in admin, WP-Cron and WP-CLI only — no front-end overhead.
+	if ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+		HPSP_Updater::init();
 	}
 } );
 

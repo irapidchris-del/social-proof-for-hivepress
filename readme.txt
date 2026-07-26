@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,10 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.1.0 =
+* Added GitHub-powered updates: new versions published as GitHub Releases are detected and installable from the WordPress Plugins page (via the bundled Plugin Update Checker library).
+* Settings sanitiser now clamps out-of-range negative numbers to the field minimum.
 
 = 1.0.0 =
 * Complete rebuild: modular architecture, event registry, render-time templating, REST feed with server-side caching, live admin preview, mobile positions, animations, snooze and per-user opt-out.

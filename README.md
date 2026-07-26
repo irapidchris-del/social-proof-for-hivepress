@@ -33,6 +33,67 @@ Live, highly customisable social-proof toast popups for [HivePress](https://hive
 2. Activate **Social Proof for HivePress**.
 3. Configure via **Settings → Social Proof**, then hit **Send test popup**.
 
+## Updates (GitHub-powered)
+
+The plugin checks this repository's **GitHub Releases** for new versions and
+surfaces them on the WordPress **Plugins** page — check-for-updates, the
+"View details" changelog, and one-click update all work, powered by the
+[Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker)
+library bundled in `lib/`.
+
+### Cutting a release
+
+1. Bump the `Version:` header in `social-proof-for-hivepress.php` (and the
+   `Stable tag` in `readme.txt`). Commit.
+2. Build the distributable ZIP:
+   ```bash
+   ./build.sh
+   ```
+   This writes to `dist/`:
+   - `social-proof-for-hivepress.zip` — **attach this to the release**
+   - `social-proof-for-hivepress-<version>.zip` — same contents, version-tagged
+     filename for your own tracking
+3. Create a **GitHub Release** tagged with the version (e.g. `v1.1.0` — a
+   leading `v` is fine) and attach `social-proof-for-hivepress.zip` as a
+   release asset.
+
+   > Or let CI do step 2–3's upload: the included workflow
+   > (`.github/workflows/release.yml`) builds and attaches the asset
+   > automatically whenever you publish a release.
+
+WordPress sites running the plugin will detect the new version within a day
+(or immediately via **Dashboard → Updates → Check again**) and can update in
+one click. The update installs from the attached `.zip` asset, so it always
+lands in the correct `social-proof-for-hivepress` folder with no
+folder-mismatch warnings.
+
+> **Note:** the main plugin file (`social-proof-for-hivepress.php`) and the
+> folder name never change between versions — WordPress identifies the plugin
+> by `folder/main-file.php`, so only the *ZIP filename* ever carries a version
+> tag, never the plugin file itself.
+
+### Always-latest download link (for the forum)
+
+This URL always redirects to the newest release's asset, so you can post it
+once and never update it:
+
+```
+https://github.com/irapidchris-del/social-proof-for-hivepress/releases/latest/download/social-proof-for-hivepress.zip
+```
+
+Because the asset is named identically on every release, the link ends in
+`.zip` and downloads the latest version instantly.
+
+### Private repository?
+
+If you make the repo private, add an access token from an integration:
+
+```php
+add_action( 'hpsp_update_checker', function ( $checker ) {
+    $checker->setAuthentication( 'your-github-token' );
+} );
+```
+
 ## Developer hooks
 
 | Hook | Type | Description |
@@ -41,6 +102,7 @@ Live, highly customisable social-proof toast popups for [HivePress](https://hive
 | `hpsp_push_event` | filter | Inspect/modify an event before it is queued; return empty to discard. |
 | `hpsp_event_tokens` | filter | Add custom template tokens for an event. |
 | `hpsp_display` | filter | Force-show or force-hide popups for the current request. |
+| `hpsp_update_checker` | action | Runs with the Plugin Update Checker instance; use it to set authentication or tweak the check period. |
 
 ## License
 
