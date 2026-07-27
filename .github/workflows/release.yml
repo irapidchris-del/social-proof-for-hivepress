@@ -1,16 +1,17 @@
-name: Build & attach release asset
-
-# When you publish a GitHub Release (tag it with the version, e.g. v1.1.0),
-# this builds the clean plugin ZIP and attaches it as
-# "social-proof-for-hivepress.zip", so the always-latest download URL and the
-# in-plugin updater keep working without any manual upload.
-#
-# You can also run it by hand from the Actions tab (workflow_dispatch).
+name: Release
 
 on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.1.0)'
+        required: true
+      notes:
+        description: 'Release notes (Markdown, optional — auto-generated if empty)'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -19,23 +20,38 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Build ZIP
+      - name: Build plugin zip
         run: |
-          chmod +x build.sh
-          ./build.sh
+          mkdir -p build/social-proof-for-hivepress
+          cp social-proof-for-hivepress.php uninstall.php readme.txt README.md build/social-proof-for-hivepress/
+          cp -r includes assets languages build/social-proof-for-hivepress/
+          cd build
+          zip -r social-proof-for-hivepress.zip social-proof-for-hivepress
+
+      - name: Create or refresh the release (manual dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            git tag -f "$TAG" "$GITHUB_SHA"
+            git push --force origin "refs/tags/$TAG"
+            if [ -n "$NOTES" ]; then
+              gh release edit "$TAG" --notes "$NOTES" --repo "$GITHUB_REPOSITORY"
+            fi
+            gh release upload "$TAG" build/social-proof-for-hivepress.zip --clobber --repo "$GITHUB_REPOSITORY"
+          elif [ -n "$NOTES" ]; then
+            gh release create "$TAG" build/social-proof-for-hivepress.zip --title "$TAG" --notes "$NOTES" --target "$GITHUB_SHA" --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" build/social-proof-for-hivepress.zip --title "$TAG" --generate-notes --target "$GITHUB_SHA" --repo "$GITHUB_REPOSITORY"
+          fi
 
       - name: Upload asset to the release
         if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/social-proof-for-hivepress.zip
-
-      - name: Save ZIP as a build artifact
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v4
-        with:
-          name: social-proof-for-hivepress
-          path: dist/social-proof-for-hivepress.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$GITHUB_REF_NAME" build/social-proof-for-hivepress.zip --clobber --repo "$GITHUB_REPOSITORY"

@@ -1,6 +1,0 @@
-# Exclude development-only files from `git archive` exports.
-/.git*           export-ignore
-/.github         export-ignore
-/build.sh        export-ignore
-/tests           export-ignore
-/dist            export-ignore

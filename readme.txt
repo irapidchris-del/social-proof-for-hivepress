@@ -77,7 +77,7 @@ No. Events expire after the configured lifetime (48 hours by default) and the qu
 == Changelog ==
 
 = 1.1.0 =
-* Added GitHub-powered updates: new versions published as GitHub Releases are detected and installable from the WordPress Plugins page (via the bundled Plugin Update Checker library).
+* Added GitHub-powered updates using WordPress's native update API (no third-party libraries): new versions published as GitHub Releases are detected and installable from the Plugins page, with a "View details" changelog and a manual "Check for updates" link.
 * Settings sanitiser now clamps out-of-range negative numbers to the field minimum.
 
 = 1.0.0 =

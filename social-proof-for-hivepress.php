@@ -4,13 +4,15 @@
  * Plugin URI:        https://github.com/irapidchris-del/social-proof-for-hivepress
  * Description:       Live, highly customisable social-proof toast popups for HivePress marketplaces — recent sign-ups, listings, bookings, reviews, sales and more.
  * Version:           1.1.0
- * Requires at least: 6.0
+ * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Chris B.
+ * Author URI:        https://community.hivepress.io/u/chrisb
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       social-proof-for-hivepress
  * Domain Path:       /languages
+ * Update URI:        https://github.com/irapidchris-del/social-proof-for-hivepress
  */
 
 // Exit if accessed directly.
@@ -42,10 +44,9 @@ add_action( 'plugins_loaded', function () {
 		HPSP_Admin::init();
 	}
 
-	// Update checks run in admin, WP-Cron and WP-CLI only — no front-end overhead.
-	if ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
-		HPSP_Updater::init();
-	}
+	// Native GitHub updater. Registering its filters is cheap; the GitHub API
+	// is only queried when WordPress actually runs an update check.
+	HPSP_Updater::init();
 } );
 
 /**

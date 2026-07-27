@@ -35,42 +35,40 @@ Live, highly customisable social-proof toast popups for [HivePress](https://hive
 
 ## Updates (GitHub-powered)
 
-The plugin checks this repository's **GitHub Releases** for new versions and
-surfaces them on the WordPress **Plugins** page — check-for-updates, the
-"View details" changelog, and one-click update all work, powered by the
-[Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker)
-library bundled in `lib/`.
+The plugin is distributed via **GitHub Releases** rather than wp.org. It uses
+WordPress's native update API (the `update_plugins_github.com` filter,
+WordPress 5.8+, keyed off the `Update URI` header) — **no third-party
+libraries**. New versions appear on the **Plugins** page with a working
+"View details" changelog and one-click update, plus a **Check for updates**
+link on the plugin row that refreshes immediately. The latest release is
+cached in a site transient (6h on success, 1h on failure).
 
 ### Cutting a release
 
+The release ZIP is built by the included workflow
+(`.github/workflows/release.yml`), so you never build or upload by hand:
+
 1. Bump the `Version:` header in `social-proof-for-hivepress.php` (and the
-   `Stable tag` in `readme.txt`). Commit.
-2. Build the distributable ZIP:
-   ```bash
-   ./build.sh
-   ```
-   This writes to `dist/`:
-   - `social-proof-for-hivepress.zip` — **attach this to the release**
-   - `social-proof-for-hivepress-<version>.zip` — same contents, version-tagged
-     filename for your own tracking
-3. Create a **GitHub Release** tagged with the version (e.g. `v1.1.0` — a
-   leading `v` is fine) and attach `social-proof-for-hivepress.zip` as a
-   release asset.
+   `Stable tag` in `readme.txt`). Commit to the default branch.
+2. Publish the release one of two ways:
+   - **GitHub UI:** create a Release tagged with the version (e.g. `v1.1.0` —
+     a leading `v` is fine). The workflow builds `social-proof-for-hivepress.zip`
+     and attaches it automatically.
+   - **Manual dispatch:** run the *Release* workflow from the **Actions** tab
+     (or via the API) with `tag` (e.g. `v1.1.0`) and optional `notes`. It
+     creates the release, tags the current commit, and attaches the asset —
+     re-running with the same tag force-moves the tag and re-uploads.
 
-   > Or let CI do step 2–3's upload: the included workflow
-   > (`.github/workflows/release.yml`) builds and attaches the asset
-   > automatically whenever you publish a release.
+The update installs from the attached `.zip` asset, and
+`upgrader_source_selection` renames the extracted folder to the installed
+directory, so updates always land in the correct `social-proof-for-hivepress`
+folder with no mismatch warnings.
 
-WordPress sites running the plugin will detect the new version within a day
-(or immediately via **Dashboard → Updates → Check again**) and can update in
-one click. The update installs from the attached `.zip` asset, so it always
-lands in the correct `social-proof-for-hivepress` folder with no
-folder-mismatch warnings.
-
-> **Note:** the main plugin file (`social-proof-for-hivepress.php`) and the
+> **Packaging rule:** the release asset is always named exactly
+> `social-proof-for-hivepress.zip` (never version-tagged) and contains a single
+> top-level `social-proof-for-hivepress/` folder. The main plugin file and
 > folder name never change between versions — WordPress identifies the plugin
-> by `folder/main-file.php`, so only the *ZIP filename* ever carries a version
-> tag, never the plugin file itself.
+> by `folder/main-file.php`.
 
 ### Always-latest download link (for the forum)
 
@@ -84,16 +82,6 @@ https://github.com/irapidchris-del/social-proof-for-hivepress/releases/latest/do
 Because the asset is named identically on every release, the link ends in
 `.zip` and downloads the latest version instantly.
 
-### Private repository?
-
-If you make the repo private, add an access token from an integration:
-
-```php
-add_action( 'hpsp_update_checker', function ( $checker ) {
-    $checker->setAuthentication( 'your-github-token' );
-} );
-```
-
 ## Developer hooks
 
 | Hook | Type | Description |
@@ -102,7 +90,6 @@ add_action( 'hpsp_update_checker', function ( $checker ) {
 | `hpsp_push_event` | filter | Inspect/modify an event before it is queued; return empty to discard. |
 | `hpsp_event_tokens` | filter | Add custom template tokens for an event. |
 | `hpsp_display` | filter | Force-show or force-hide popups for the current request. |
-| `hpsp_update_checker` | action | Runs with the Plugin Update Checker instance; use it to set authentication or tweak the check period. |
 
 ## License
 
