@@ -1,0 +1,767 @@
+# Copyright (C) 2026 ChrisB @ HivePress Community
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Social Proof for HivePress 1.3.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/social-proof-for-hivepress\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-17T18:06:06+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: social-proof-for-hivepress\n"
+
+#. Plugin Name of the plugin
+#: social-proof-for-hivepress.php
+#: includes/class-hpsp-admin.php:38
+#: includes/class-hpsp-admin.php:196
+msgid "Social Proof for HivePress"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: social-proof-for-hivepress.php
+msgid "https://github.com/irapidchris-del/social-proof-for-hivepress"
+msgstr ""
+
+#. Description of the plugin
+#: social-proof-for-hivepress.php
+msgid "Live, highly customisable social-proof toast popups for HivePress marketplaces: recent sign-ups, listings, bookings, reviews, sales and more."
+msgstr ""
+
+#. Author of the plugin
+#: social-proof-for-hivepress.php
+msgid "ChrisB @ HivePress Community"
+msgstr ""
+
+#. Author URI of the plugin
+#: social-proof-for-hivepress.php
+msgid "https://community.hivepress.io/u/chrisb/summary"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:39
+msgid "Social Proof"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:86
+msgid "Choose fallback avatar"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:87
+msgid "Use this image"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:107
+msgid "HivePress does not appear to be active. Social Proof will still track core WordPress sign-ups, but HivePress events (listings, bookings, reviews, favourites, orders) require HivePress and its extensions."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:119
+msgid "Test popup queued! Open your site in a new tab to see it. Test popups expire automatically after 5 minutes."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:121
+msgid "The popup queue has been cleared."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:135
+msgid "Settings"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:146
+#: includes/class-hpsp-admin.php:167
+msgid "You are not allowed to do that."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:189
+#: includes/class-hpsp-admin.php:245
+msgid "General"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:190
+msgid "Events"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:191
+msgid "Design"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:192
+msgid "Timing"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:246
+msgid "Master switch, event capture rules and pages where popups should stay hidden."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:249
+msgid "Enable popups"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:249
+msgid "Master switch for all social-proof popups."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:250
+msgid "Ignore administrators"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:250
+msgid "Don't create popups for actions performed by administrators."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:251
+msgid "Event lifetime (hours)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:251
+msgid "How long an event keeps appearing in popups. Older events are discarded so the feed never feels stale."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:252
+msgid "Queue size"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:252
+msgid "Maximum number of recent events kept in the rotation."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:255
+msgid "Exclude pages"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:258
+msgid "One URL path per line where popups should not appear. Use * as a wildcard, e.g. /account/*."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:263
+msgid "Removing the plugin"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:264
+msgid "Your settings and your members' preferences are kept if you delete this plugin, so you can reinstall it and carry on. WordPress shows its own warning on the delete screen saying the data goes too, but that warning is the same for every plugin and does not apply here unless you tick the box below. Switching the plugin off never removes anything."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:267
+msgid "Delete all data"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:267
+msgid "Leave this unticked unless you are certain. With it ticked, deleting the plugin also removes every setting on this page and each member's \"hide activity popups\" choice. It cannot be undone and nothing asks you to confirm at the time. The popup queue and caches are always cleared on deletion either way."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:280
+msgid "Tracked events"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:282
+msgid "Switch each event type on or off and customise its popup message. Templates support basic HTML (links, bold, italics) and dynamic tokens. Tokens without a value for a given event are left blank."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:304
+msgid "Message template"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:309
+msgid "Popup image"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:311
+msgid "User avatar"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:312
+msgid "Listing image (falls back to avatar)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:313
+msgid "Icon on a coloured tile"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:314
+msgid "No image"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:318
+msgid "Icon"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:328
+msgid "Tokens:"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:345
+msgid "Bottom left"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:346
+msgid "Bottom centre"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:347
+msgid "Bottom right"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:348
+msgid "Top left"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:349
+msgid "Top centre"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:350
+msgid "Top right"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:353
+msgid "Position"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:354
+msgid "Choose where popups appear on desktop and mobile screens."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:357
+msgid "Desktop position"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:357
+msgid "Corner of the screen where popups appear on desktop."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:358
+msgid "Mobile position"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:358
+msgid "Used on screens narrower than 640px."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:359
+msgid "Show on mobile"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:359
+msgid "Untick to hide popups on small screens entirely."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:360
+msgid "Z-index"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:360
+msgid "Raise this if popups appear behind other elements."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:364
+msgid "Animation"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:365
+msgid "How popups enter and leave the screen."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:370
+msgid "Style"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:371
+msgid "Visitors with reduced-motion preferences always get a simple fade."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:374
+msgid "Slide"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:375
+msgid "Fade"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:376
+msgid "Pop"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:379
+msgid "Speed (ms)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:379
+msgid "How long the show and hide animation takes, in milliseconds."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:383
+msgid "Colours & shape"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:384
+msgid "Match the popups to your site design. The live preview updates as you change these."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:387
+msgid "Background"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:387
+msgid "Popup background colour."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:388
+msgid "Text"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:388
+msgid "Popup text colour."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:389
+msgid "Links"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:389
+msgid "Colour of links inside popups, such as listing titles."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:390
+msgid "Border"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:390
+msgid "Border colour, visible when the border width is above zero."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:391
+msgid "Border width (px)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:391
+msgid "Set to 0 for no border."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:392
+msgid "Corner radius (px)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:392
+msgid "Use a high value like 999 for the classic pill shape."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:395
+msgid "Shadow"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:396
+msgid "Drop shadow behind each popup."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:399
+msgid "None"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:400
+msgid "Soft"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:401
+msgid "Medium"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:402
+msgid "Strong"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:405
+msgid "Font size (px)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:405
+msgid "Size of the popup message text."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:406
+msgid "Max width (px)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:406
+msgid "Widest a popup can grow on desktop screens."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:409
+msgid "Image shape"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:410
+msgid "Shape of the avatar or listing image in each popup."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:413
+msgid "Circle"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:414
+msgid "Rounded square"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:415
+msgid "Square"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:419
+msgid "Show close button"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:419
+msgid "Adds a small cross so visitors can dismiss popups."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:420
+msgid "Show relative time"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:420
+msgid "Adds a subtle \"5 minutes ago\" line to each popup."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:421
+msgid "Show countdown bar"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:421
+msgid "A thin bar along the bottom of each popup empties as its time runs down, and pauses while the pointer is over it."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:434
+msgid "Timing & rotation"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:435
+msgid "Control how often popups appear and how the event feed rotates."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:438
+msgid "Initial delay (seconds)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:438
+msgid "Wait before showing the first popup after the page loads."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:439
+msgid "Display duration (seconds)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:439
+msgid "How long each popup stays on screen. Hovering pauses the timer."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:440
+msgid "Gap between popups (seconds)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:440
+msgid "Quiet time between one popup hiding and the next appearing."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:441
+msgid "Popups visible at once"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:441
+msgid "How many popups can be on screen at the same time."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:442
+msgid "Max popups per page view"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:442
+msgid "0 means unlimited."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:445
+msgid "Order"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:446
+msgid "Show the newest events first, or shuffle them for variety."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:449
+msgid "Newest first"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:450
+msgid "Random"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:453
+msgid "No repeats per session"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:453
+msgid "Don't show a visitor the same event twice in one browsing session."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:454
+msgid "Loop events"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:454
+msgid "Start over from the beginning after every event has been shown (ignored when \"No repeats\" is on)."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:455
+msgid "Snooze after close (minutes)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:455
+msgid "When a visitor closes a popup, hide all popups for this long. 0 closes only that popup."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:470
+msgid "Live preview"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:479
+msgid "just booked"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:479
+msgid "Sunny Loft Apartment"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:480
+msgid "2 minutes ago"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:485
+msgid "Updates as you change the design settings. Use \"Replay\" to preview the animation."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:486
+msgid "Replay animation"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:498
+msgid "Tools"
+msgstr ""
+
+#. translators: %d: number of queued events.
+#: includes/class-hpsp-admin.php:503
+#, php-format
+msgid "%d event currently in the queue."
+msgid_plural "%d events currently in the queue."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-hpsp-admin.php:511
+msgid "Send test popup"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:516
+msgid "Clear queue"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:622
+msgid "Fallback avatar"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:626
+msgid "Choose image"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:627
+msgid "Remove"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:628
+msgid "Shown instead of the grey silhouette when a member has no profile photo (Gravatar). Members who have set a photo still see their own. Leave empty to use the default WordPress avatar."
+msgstr ""
+
+#: includes/class-hpsp-events.php:58
+msgid "New user sign-up"
+msgstr ""
+
+#: includes/class-hpsp-events.php:59
+msgid "Shown when someone creates an account."
+msgstr ""
+
+#: includes/class-hpsp-events.php:60
+#, php-format
+msgid "<strong>%username%</strong> just joined %site_name%"
+msgstr ""
+
+#: includes/class-hpsp-events.php:67
+msgid "New listing published"
+msgstr ""
+
+#: includes/class-hpsp-events.php:68
+msgid "Shown when a listing goes live."
+msgstr ""
+
+#: includes/class-hpsp-events.php:69
+#, php-format
+msgid "<strong>%username%</strong> just posted a new listing: %listing_title_link%"
+msgstr ""
+
+#: includes/class-hpsp-events.php:76
+msgid "New booking"
+msgstr ""
+
+#: includes/class-hpsp-events.php:77
+msgid "Shown when a booking is confirmed (requires the Bookings extension)."
+msgstr ""
+
+#: includes/class-hpsp-events.php:78
+#, php-format
+msgid "<strong>%username%</strong> just booked %listing_title_link%"
+msgstr ""
+
+#: includes/class-hpsp-events.php:85
+msgid "New review"
+msgstr ""
+
+#: includes/class-hpsp-events.php:86
+msgid "Shown when an approved review is posted (requires the Reviews extension)."
+msgstr ""
+
+#: includes/class-hpsp-events.php:87
+#, php-format
+msgid "<strong>%username%</strong> just left a %rating%-star review on %listing_title_link%"
+msgstr ""
+
+#: includes/class-hpsp-events.php:94
+msgid "New purchase"
+msgstr ""
+
+#: includes/class-hpsp-events.php:95
+msgid "Shown when an order is paid (requires the Marketplace extension / WooCommerce)."
+msgstr ""
+
+#: includes/class-hpsp-events.php:96
+#, php-format
+msgid "<strong>%username%</strong> just purchased %listing_title_link%"
+msgstr ""
+
+#: includes/class-hpsp-events.php:103
+msgid "Listing favourited"
+msgstr ""
+
+#: includes/class-hpsp-events.php:104
+msgid "Shown when someone adds a listing to their favourites (requires the Favorites extension)."
+msgstr ""
+
+#: includes/class-hpsp-events.php:105
+#, php-format
+msgid "<strong>%username%</strong> just favourited %listing_title_link%"
+msgstr ""
+
+#: includes/class-hpsp-events.php:112
+msgid "New vendor"
+msgstr ""
+
+#: includes/class-hpsp-events.php:113
+msgid "Shown when a new vendor profile goes live."
+msgstr ""
+
+#: includes/class-hpsp-events.php:114
+#, php-format
+msgid "<strong>%username%</strong> just became a vendor on %site_name%"
+msgstr ""
+
+#: includes/class-hpsp-events.php:121
+msgid "New enquiry"
+msgstr ""
+
+#: includes/class-hpsp-events.php:122
+msgid "Shown when someone sends a message about a listing (requires the Messages extension). Message contents are never shown."
+msgstr ""
+
+#: includes/class-hpsp-events.php:123
+#, php-format
+msgid "<strong>%username%</strong> just enquired about %listing_title_link%"
+msgstr ""
+
+#: includes/class-hpsp-events.php:541
+#, php-format
+msgid "<strong>%username%</strong> just sent a test popup, looking good! 🎉"
+msgstr ""
+
+#: includes/class-hpsp-events.php:734
+#: includes/class-hpsp-events.php:740
+#: includes/class-hpsp-events.php:760
+msgid "Someone"
+msgstr ""
+
+#: includes/class-hpsp-frontend.php:119
+msgid "Close notification"
+msgstr ""
+
+#: includes/class-hpsp-frontend.php:120
+msgid "just now"
+msgstr ""
+
+#. translators: %d: number of minutes.
+#: includes/class-hpsp-frontend.php:122
+#, php-format
+msgid "%d minutes ago"
+msgstr ""
+
+#: includes/class-hpsp-frontend.php:123
+msgid "1 minute ago"
+msgstr ""
+
+#. translators: %d: number of hours.
+#: includes/class-hpsp-frontend.php:125
+#, php-format
+msgid "%d hours ago"
+msgstr ""
+
+#: includes/class-hpsp-frontend.php:126
+msgid "1 hour ago"
+msgstr ""
+
+#. translators: %d: number of days.
+#: includes/class-hpsp-frontend.php:128
+#, php-format
+msgid "%d days ago"
+msgstr ""
+
+#: includes/class-hpsp-frontend.php:129
+msgid "1 day ago"
+msgstr ""
+
+#: includes/class-hpsp-frontend.php:218
+msgid "Hide activity popups"
+msgstr ""
+
+#: includes/class-hpsp-updater.php:236
+msgid "See the GitHub releases page for the changelog."
+msgstr ""
+
+#: includes/class-hpsp-updater.php:249
+msgid "Check for updates"
+msgstr ""
+
+#. translators: %s: new version number.
+#: includes/class-hpsp-updater.php:302
+#, php-format
+msgid "A new version of Social Proof for HivePress (%s) is available."
+msgstr ""
+
+#: includes/class-hpsp-updater.php:305
+msgid "Social Proof for HivePress is up to date."
+msgstr ""
+
+#: includes/class-hpsp-updater.php:308
+msgid "Could not reach GitHub to check for updates. Please try again later."
+msgstr ""
+
+#: includes/class-hpsp-updater.php:350
+msgid "Could not rename the update directory."
+msgstr ""
+
+#: social-proof-for-hivepress.php:71
+msgid "Donate"
+msgstr ""
