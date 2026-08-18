@@ -469,6 +469,18 @@ class Hpsp_Events {
 	}
 
 	/**
+	 * Number of events a visitor would actually be shown right now.
+	 *
+	 * A cancelled booking or refunded order stays in the queue and is filtered
+	 * when the feed is built, rather than being purged, so the stored count can
+	 * legitimately run ahead of what reaches the screen. The Tools box reports
+	 * both numbers so that gap never reads as a fault.
+	 */
+	public static function display_count(): int {
+		return count( self::get_display_events( 0 ) );
+	}
+
+	/**
 	 * Empty the queue.
 	 */
 	public static function clear(): void {
@@ -521,8 +533,14 @@ class Hpsp_Events {
 	/**
 	 * Build the display payload for the browser: enabled, unexpired events
 	 * rendered against the current templates, newest first.
+	 *
+	 * @param int $limit Maximum events to return, or 0 for every renderable
+	 *                   event. The default caps what a single request carries;
+	 *                   the admin counter passes 0 because a capped total would
+	 *                   report events as "held back" when they are merely
+	 *                   waiting for the next request.
 	 */
-	public static function get_display_events(): array {
+	public static function get_display_events( int $limit = self::MAX_SENT_EVENTS ): array {
 		$settings = Hpsp_Settings::get();
 		$queue    = self::prune( self::get_queue() );
 
@@ -543,7 +561,7 @@ class Hpsp_Events {
 				$events[] = $rendered;
 			}
 
-			if ( count( $events ) >= self::MAX_SENT_EVENTS ) {
+			if ( $limit > 0 && count( $events ) >= $limit ) {
 				break;
 			}
 		}
@@ -829,7 +847,9 @@ class Hpsp_Events {
 	}
 
 	/**
-	 * Format an actor's public name as "First L." for privacy.
+	 * Shorten an actor's public name to "First L." for privacy where the
+	 * member has supplied a name, otherwise showing the same name HivePress
+	 * itself displays for them.
 	 *
 	 * @param int $user_id User ID.
 	 */
@@ -860,6 +880,14 @@ class Hpsp_Events {
 
 			return $parts[0] . ' ' . self::initial( $last ) . '.';
 		}
+
+		// Anything else is left exactly as HivePress renders it. HivePress owns
+		// display_name and rewrites it on every save from its own Settings >
+		// Users > Display Name option, falling back to the username when the
+		// chosen name parts are empty (reference/hivepress/includes/components/
+		// class-user.php:166-219). Reformatting it here would show a different
+		// name in popups than the rest of the site shows, so the site's own
+		// setting stays the single source of truth.
 
 		return $display ? $display : __( 'Someone', 'social-proof-for-hivepress' );
 	}

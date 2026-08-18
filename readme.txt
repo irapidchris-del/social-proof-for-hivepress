@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.4
+Stable tag: 1.3.5
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,7 +20,7 @@ Social Proof for HivePress makes your marketplace feel alive. It listens for rea
 * "Daniel R. just left a 5-star review on Harbour View Studio"
 * "Someone just purchased Vintage Camera Kit"
 
-Names are always shortened to "First L." for privacy, and message contents (for enquiries) are never shown.
+Names are shortened to "First L." wherever a member has a first and last name saved, and message contents (for enquiries) are never shown. Where a member has given no name, popups show exactly the name HivePress shows elsewhere on your site, which you control under HivePress Settings > Users > Display Name and which falls back to the member's username. The "Anonymise members" setting replaces every name with "Someone".
 
 = Tracked events =
 
@@ -52,7 +52,7 @@ Every event type can be switched on or off individually and has its own message 
 
 = Privacy =
 
-The plugin stores only minimal event references (user, listing and object IDs) in the WordPress options table, renders names in shortened form, and never exposes email addresses or message contents. Logged-in users can opt out of seeing popups. Deleting the plugin keeps your settings and preferences so you can reinstall and carry on; tick "Delete all data" on the General tab first if you want everything removed instead.
+The plugin stores only minimal event references (user, listing and object IDs) in the WordPress options table, renders names in shortened form where a member has supplied one and otherwise defers to the name HivePress already displays, and never exposes email addresses or message contents. Logged-in users can opt out of seeing popups. Deleting the plugin keeps your settings and preferences so you can reinstall and carry on; tick "Delete all data" on the General tab first if you want everything removed instead.
 
 == Installation ==
 
@@ -78,6 +78,10 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.3.5 =
+* Fixed: the documentation claimed member names are always shortened to "First L.". Popups shorten a name where the member has saved one, and otherwise show exactly the name HivePress itself displays, which you control under HivePress Settings > Users > Display Name.
+* Fixed: the queue box in Tools counted every stored event, including ones deliberately held back from visitors, so it could report more popups than your site was actually showing. It now reports both numbers whenever they differ, and says why the rest are held back.
 
 = 1.3.4 =
 * Fixed: cancelled bookings and cancelled or refunded orders no longer keep appearing in popups. Previously they carried on advertising themselves for the rest of the event lifetime, which meant your site could promote a sale that no longer existed.

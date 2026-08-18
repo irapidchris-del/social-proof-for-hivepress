@@ -499,17 +499,31 @@ class Hpsp_Admin {
 	 * Tools sidebar box: test popup, clear queue, queue status.
 	 */
 	protected static function render_tools_box(): void {
-		$count = Hpsp_Events::count();
+		$stored = Hpsp_Events::count();
+		$shown  = Hpsp_Events::display_count();
 		?>
 		<div class="hpsp-box">
 			<h2><?php esc_html_e( 'Tools', 'social-proof-for-hivepress' ); ?></h2>
 			<p>
 				<?php
-				printf(
-					/* translators: %d: number of queued events. */
-					esc_html( _n( '%d event currently in the queue.', '%d events currently in the queue.', $count, 'social-proof-for-hivepress' ) ),
-					(int) $count
-				);
+				if ( $shown === $stored ) {
+					printf(
+						/* translators: %d: number of queued events. */
+						esc_html( _n( '%d event currently in the queue.', '%d events currently in the queue.', $stored, 'social-proof-for-hivepress' ) ),
+						(int) $stored
+					);
+				} else {
+					printf(
+						/* translators: 1: number of events stored in the queue, 2: number of events ready to show. */
+						esc_html( _n( '%1$d event in the queue, %2$d ready to show.', '%1$d events in the queue, %2$d ready to show.', $stored, 'social-proof-for-hivepress' ) ),
+						(int) $stored,
+						(int) $shown
+					);
+					?>
+					<br>
+					<span class="description"><?php esc_html_e( 'Events are held back when what they point at has since been cancelled or removed, or when their event type is switched off. They are cleared out automatically once they expire.', 'social-proof-for-hivepress' ); ?></span>
+					<?php
+				}
 				?>
 			</p>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="hpsp-inline-form">
