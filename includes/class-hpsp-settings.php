@@ -42,55 +42,56 @@ class Hpsp_Settings {
 
 		return [
 			// General.
-			'enabled'          => true,
-			'exclude_admins'   => true,
-			'anonymise'        => false,  // Show "Someone" instead of member names.
-			'show_on_mobile'   => true,
-			'event_lifetime'   => 48,   // Hours an event stays eligible for display.
-			'queue_size'       => 50,   // Max events kept in the queue.
-			'exclude_paths'    => '',   // One URL path per line, * wildcards allowed.
+			'enabled'                 => true,
+			'exclude_admins'          => true,
+			'anonymise'               => false,      // Show "Someone" instead of member names.
+			'user_location_attribute' => 'location', // User attribute supplying sign-up locations; '' = none.
+			'show_on_mobile'          => true,
+			'event_lifetime'          => 48,   // Hours an event stays eligible for display.
+			'queue_size'              => 50,   // Max events kept in the queue.
+			'exclude_paths'           => '',   // One URL path per line, * wildcards allowed.
 
 			// Timing & behaviour.
-			'initial_delay'    => 4,  // Seconds before the first popup.
-			'display_duration' => 6,  // Seconds each popup stays visible.
-			'gap'              => 8,  // Seconds between popups.
-			'max_visible'      => 1,  // Popups shown at the same time.
-			'max_per_page'     => 0,  // 0 = unlimited per page view.
-			'order'            => 'newest', // newest|random.
-			'no_repeat'        => true,     // Skip events already seen this browser session.
-			'loop'             => false,    // Start over once every event has been shown.
-			'snooze_duration'  => 60,       // Minutes popups stay hidden after a visitor closes one. 0 = close only that popup.
+			'initial_delay'           => 4,  // Seconds before the first popup.
+			'display_duration'        => 6,  // Seconds each popup stays visible.
+			'gap'                     => 8,  // Seconds between popups.
+			'max_visible'             => 1,  // Popups shown at the same time.
+			'max_per_page'            => 0,  // 0 = unlimited per page view.
+			'order'                   => 'newest', // newest|random.
+			'no_repeat'               => true,     // Skip events already seen this browser session.
+			'loop'                    => false,    // Start over once every event has been shown.
+			'snooze_duration'         => 60,       // Minutes popups stay hidden after a visitor closes one. 0 = close only that popup.
 
 			// Position & animation.
-			'position'         => 'bottom-left',
-			'position_mobile'  => 'bottom-center',
-			'offset_x'         => 20,        // Distance from the side edge on desktop, px.
-			'offset_y'         => 20,        // Distance from the top/bottom edge on desktop, px.
-			'animation'        => 'slide',   // slide|fade|pop.
-			'animation_speed'  => 300,       // Milliseconds.
+			'position'                => 'bottom-left',
+			'position_mobile'         => 'bottom-center',
+			'offset_x'                => 20,        // Distance from the side edge on desktop, px.
+			'offset_y'                => 20,        // Distance from the top/bottom edge on desktop, px.
+			'animation'               => 'slide',   // slide|fade|pop.
+			'animation_speed'         => 300,       // Milliseconds.
 
 			// Appearance.
-			'bg_color'         => '#111827',
-			'text_color'       => '#f9fafb',
-			'link_color'       => '#93c5fd',
-			'border_color'     => '#374151',
-			'border_width'     => 0,
-			'border_radius'    => 999,
-			'shadow'           => 'medium',    // none|soft|medium|strong.
-			'font_size'        => 14,
-			'max_width'        => 380,
-			'image_style'      => 'circle',  // circle|rounded|square.
-			'fallback_avatar'  => 0,         // Attachment ID; 0 = default WordPress avatar.
-			'show_close'       => true,
-			'show_time'        => true,
-			'show_progress'    => true,      // Countdown bar along the bottom of each popup.
-			'z_index'          => 99999,
+			'bg_color'                => '#111827',
+			'text_color'              => '#f9fafb',
+			'link_color'              => '#93c5fd',
+			'border_color'            => '#374151',
+			'border_width'            => 0,
+			'border_radius'           => 999,
+			'shadow'                  => 'medium',    // none|soft|medium|strong.
+			'font_size'               => 14,
+			'max_width'               => 380,
+			'image_style'             => 'circle',  // circle|rounded|square.
+			'fallback_avatar'         => 0,         // Attachment ID; 0 = default WordPress avatar.
+			'show_close'              => true,
+			'show_time'               => true,
+			'show_progress'           => true,      // Countdown bar along the bottom of each popup.
+			'z_index'                 => 99999,
 
 			// Uninstall behaviour. Retain by default; see uninstall.php.
-			'delete_data'      => false,
+			'delete_data'             => false,
 
 			// Per-event settings.
-			'events'           => $events,
+			'events'                  => $events,
 		];
 	}
 
@@ -305,6 +306,9 @@ class Hpsp_Settings {
 
 		// Fallback avatar attachment.
 		$output['fallback_avatar'] = isset( $input['fallback_avatar'] ) ? absint( $input['fallback_avatar'] ) : 0;
+
+		// User location attribute name; an empty value means "none".
+		$output['user_location_attribute'] = isset( $input['user_location_attribute'] ) ? sanitize_key( $input['user_location_attribute'] ) : $defaults['user_location_attribute'];
 
 		// Colours.
 		foreach ( [ 'bg_color', 'text_color', 'link_color', 'border_color' ] as $key ) {

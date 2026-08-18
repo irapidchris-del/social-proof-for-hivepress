@@ -249,6 +249,7 @@ class Hpsp_Admin {
 			self::field_checkbox( 'enabled', __( 'Enable popups', 'social-proof-for-hivepress' ), __( 'Master switch for all social-proof popups.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'exclude_admins', __( 'Ignore administrators', 'social-proof-for-hivepress' ), __( 'Don\'t create popups for actions performed by administrators.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'anonymise', __( 'Anonymise members', 'social-proof-for-hivepress' ), __( 'Show "Someone" instead of member names, and a generic picture instead of their profile photo. Listing images, icons and locations still show.', 'social-proof-for-hivepress' ), $settings );
+			self::field_user_location_attribute( $settings );
 			self::field_number( 'event_lifetime', __( 'Event lifetime (hours)', 'social-proof-for-hivepress' ), __( 'How long an event keeps appearing in popups. Older events are discarded so the feed never feels stale.', 'social-proof-for-hivepress' ), $settings, 1, 720 );
 			self::field_number( 'queue_size', __( 'Queue size', 'social-proof-for-hivepress' ), __( 'Maximum number of recent events kept in the rotation.', 'social-proof-for-hivepress' ), $settings, 10, 200 );
 			?>
@@ -610,6 +611,50 @@ class Hpsp_Admin {
 			</td>
 		</tr>
 		<?php
+	}
+
+	/**
+	 * User location attribute row: maps a user profile attribute to the
+	 * location tokens on sign-up popups.
+	 *
+	 * @param array $settings Current settings.
+	 */
+	protected static function field_user_location_attribute( array $settings ): void {
+		$current = (string) $settings['user_location_attribute'];
+		$options = [
+			'' => __( 'None', 'social-proof-for-hivepress' ),
+		];
+
+		// User attributes registered on this site, admin-defined or programmatic.
+		if ( function_exists( 'hivepress' ) ) {
+			foreach ( hivepress()->attribute->get_attributes( 'user' ) as $name => $attribute ) {
+				$label = '';
+
+				if ( ! empty( $attribute['label'] ) ) {
+					$label = (string) $attribute['label'];
+				} elseif ( ! empty( $attribute['edit_field']['label'] ) ) {
+					$label = (string) $attribute['edit_field']['label'];
+				}
+
+				$options[ $name ] = '' !== $label ? $label . ' (' . $name . ')' : $name;
+			}
+		}
+
+		// Keep a stored choice visible even while its attribute is missing,
+		// so deactivating an extension never silently rewrites the setting.
+		if ( '' !== $current && ! isset( $options[ $current ] ) ) {
+			/* translators: %s: the stored attribute name. */
+			$options[ $current ] = sprintf( __( '%s (not currently registered)', 'social-proof-for-hivepress' ), $current );
+		}
+
+		self::field_select(
+			'user_location_attribute',
+			__( 'Member location attribute', 'social-proof-for-hivepress' ),
+			// phpcs:ignore WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.MissingTranslatorsComment -- %location% and %in_location% are literal token names shown to the admin, not printf placeholders.
+			__( 'Which user profile attribute supplies a member\'s location for sign-up popups and their %location% and %in_location% tokens. Only attributes on the user model are listed. Collecting real locations on profiles usually needs a Location attribute on the user model, which the Geolocation Plus extension makes available.', 'social-proof-for-hivepress' ),
+			$settings,
+			$options
+		);
 	}
 
 	/**

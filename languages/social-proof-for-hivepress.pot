@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Social Proof for HivePress 1.3.1\n"
+"Project-Id-Version: Social Proof for HivePress 1.3.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/social-proof-for-hivepress\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-18T00:09:48+00:00\n"
+"POT-Creation-Date: 2026-08-18T00:20:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: social-proof-for-hivepress\n"
@@ -119,487 +119,502 @@ msgstr ""
 msgid "Show \"Someone\" instead of member names, and a generic picture instead of their profile photo. Listing images, icons and locations still show."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:252
+#: includes/class-hpsp-admin.php:253
 msgid "Event lifetime (hours)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:252
+#: includes/class-hpsp-admin.php:253
 msgid "How long an event keeps appearing in popups. Older events are discarded so the feed never feels stale."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:253
+#: includes/class-hpsp-admin.php:254
 msgid "Queue size"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:253
+#: includes/class-hpsp-admin.php:254
 msgid "Maximum number of recent events kept in the rotation."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:256
+#: includes/class-hpsp-admin.php:257
 msgid "Exclude pages"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:259
+#: includes/class-hpsp-admin.php:260
 msgid "One URL path per line where popups should not appear. Use * as a wildcard, e.g. /account/*."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:264
+#: includes/class-hpsp-admin.php:265
 msgid "Removing the plugin"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:265
+#: includes/class-hpsp-admin.php:266
 msgid "Your settings and your members' preferences are kept if you delete this plugin, so you can reinstall it and carry on. WordPress shows its own warning on the delete screen saying the data goes too, but that warning is the same for every plugin and does not apply here unless you tick the box below. Switching the plugin off never removes anything."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:268
+#: includes/class-hpsp-admin.php:269
 msgid "Delete all data"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:268
+#: includes/class-hpsp-admin.php:269
 msgid "Leave this unticked unless you are certain. With it ticked, deleting the plugin also removes every setting on this page and each member's \"hide activity popups\" choice. It cannot be undone and nothing asks you to confirm at the time. The popup queue and caches are always cleared on deletion either way."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:281
+#: includes/class-hpsp-admin.php:282
 msgid "Tracked events"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:283
+#: includes/class-hpsp-admin.php:284
 msgid "Switch each event type on or off and customise its popup message. Templates support basic HTML (links, bold, italics) and dynamic tokens. Tokens without a value for a given event are left blank."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:305
+#: includes/class-hpsp-admin.php:306
 msgid "Message template"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:310
+#: includes/class-hpsp-admin.php:311
 msgid "Popup image"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:312
+#: includes/class-hpsp-admin.php:313
 msgid "User avatar"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:313
+#: includes/class-hpsp-admin.php:314
 msgid "Listing image (falls back to avatar)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:314
+#: includes/class-hpsp-admin.php:315
 msgid "Icon on a coloured tile"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:315
+#: includes/class-hpsp-admin.php:316
 msgid "No image"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:319
+#: includes/class-hpsp-admin.php:320
 msgid "Icon"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:329
+#: includes/class-hpsp-admin.php:330
 msgid "Tokens:"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:346
+#: includes/class-hpsp-admin.php:347
 msgid "Bottom left"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:347
+#: includes/class-hpsp-admin.php:348
 msgid "Bottom centre"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:348
+#: includes/class-hpsp-admin.php:349
 msgid "Bottom right"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:349
+#: includes/class-hpsp-admin.php:350
 msgid "Top left"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:350
+#: includes/class-hpsp-admin.php:351
 msgid "Top centre"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:351
+#: includes/class-hpsp-admin.php:352
 msgid "Top right"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:354
+#: includes/class-hpsp-admin.php:355
 msgid "Position"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:355
+#: includes/class-hpsp-admin.php:356
 msgid "Choose where popups appear on desktop and mobile screens."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:358
+#: includes/class-hpsp-admin.php:359
 msgid "Desktop position"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:358
+#: includes/class-hpsp-admin.php:359
 msgid "Corner of the screen where popups appear on desktop."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:359
+#: includes/class-hpsp-admin.php:360
 msgid "Mobile position"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:359
+#: includes/class-hpsp-admin.php:360
 msgid "Used on screens narrower than 640px."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:360
+#: includes/class-hpsp-admin.php:361
 msgid "Offset from the side (px)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:360
+#: includes/class-hpsp-admin.php:361
 msgid "Distance from the left or right screen edge on desktop. Raise it if popups sit on top of a floating button or bar in that corner."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:361
+#: includes/class-hpsp-admin.php:362
 msgid "Offset from the top or bottom (px)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:361
+#: includes/class-hpsp-admin.php:362
 msgid "Distance from the top or bottom screen edge on desktop. Popups also move up automatically while a Notifications for HivePress pop-up is using the same corner."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:362
+#: includes/class-hpsp-admin.php:363
 msgid "Show on mobile"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:362
+#: includes/class-hpsp-admin.php:363
 msgid "Untick to hide popups on small screens entirely."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:363
+#: includes/class-hpsp-admin.php:364
 msgid "Z-index"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:363
+#: includes/class-hpsp-admin.php:364
 msgid "Raise this if popups appear behind other elements."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:367
+#: includes/class-hpsp-admin.php:368
 msgid "Animation"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:368
+#: includes/class-hpsp-admin.php:369
 msgid "How popups enter and leave the screen."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:373
+#: includes/class-hpsp-admin.php:374
 msgid "Style"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:374
+#: includes/class-hpsp-admin.php:375
 msgid "Visitors with reduced-motion preferences always get a simple fade."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:377
+#: includes/class-hpsp-admin.php:378
 msgid "Slide"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:378
+#: includes/class-hpsp-admin.php:379
 msgid "Fade"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:379
+#: includes/class-hpsp-admin.php:380
 msgid "Pop"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:382
+#: includes/class-hpsp-admin.php:383
 msgid "Speed (ms)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:382
+#: includes/class-hpsp-admin.php:383
 msgid "How long the show and hide animation takes, in milliseconds."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:386
+#: includes/class-hpsp-admin.php:387
 msgid "Colours & shape"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:387
+#: includes/class-hpsp-admin.php:388
 msgid "Match the popups to your site design. The live preview updates as you change these."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:390
+#: includes/class-hpsp-admin.php:391
 msgid "Background"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:390
+#: includes/class-hpsp-admin.php:391
 msgid "Popup background colour."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:391
+#: includes/class-hpsp-admin.php:392
 msgid "Text"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:391
+#: includes/class-hpsp-admin.php:392
 msgid "Popup text colour."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:392
+#: includes/class-hpsp-admin.php:393
 msgid "Links"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:392
+#: includes/class-hpsp-admin.php:393
 msgid "Colour of links inside popups, such as listing titles."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:393
+#: includes/class-hpsp-admin.php:394
 msgid "Border"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:393
+#: includes/class-hpsp-admin.php:394
 msgid "Border colour, visible when the border width is above zero."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:394
+#: includes/class-hpsp-admin.php:395
 msgid "Border width (px)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:394
+#: includes/class-hpsp-admin.php:395
 msgid "Set to 0 for no border."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:395
+#: includes/class-hpsp-admin.php:396
 msgid "Corner radius (px)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:395
+#: includes/class-hpsp-admin.php:396
 msgid "Use a high value like 999 for the classic pill shape."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:398
+#: includes/class-hpsp-admin.php:399
 msgid "Shadow"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:399
+#: includes/class-hpsp-admin.php:400
 msgid "Drop shadow behind each popup."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:402
+#: includes/class-hpsp-admin.php:403
+#: includes/class-hpsp-admin.php:625
 msgid "None"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:403
+#: includes/class-hpsp-admin.php:404
 msgid "Soft"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:404
+#: includes/class-hpsp-admin.php:405
 msgid "Medium"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:405
+#: includes/class-hpsp-admin.php:406
 msgid "Strong"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:408
+#: includes/class-hpsp-admin.php:409
 msgid "Font size (px)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:408
+#: includes/class-hpsp-admin.php:409
 msgid "Size of the popup message text."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:409
+#: includes/class-hpsp-admin.php:410
 msgid "Max width (px)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:409
+#: includes/class-hpsp-admin.php:410
 msgid "Widest a popup can grow on desktop screens."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:412
+#: includes/class-hpsp-admin.php:413
 msgid "Image shape"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:413
+#: includes/class-hpsp-admin.php:414
 msgid "Shape of the avatar or listing image in each popup."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:416
+#: includes/class-hpsp-admin.php:417
 msgid "Circle"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:417
+#: includes/class-hpsp-admin.php:418
 msgid "Rounded square"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:418
+#: includes/class-hpsp-admin.php:419
 msgid "Square"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:422
+#: includes/class-hpsp-admin.php:423
 msgid "Show close button"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:422
+#: includes/class-hpsp-admin.php:423
 msgid "Adds a small cross so visitors can dismiss popups."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:423
+#: includes/class-hpsp-admin.php:424
 msgid "Show relative time"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:423
+#: includes/class-hpsp-admin.php:424
 msgid "Adds a subtle \"5 minutes ago\" line to each popup."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:424
+#: includes/class-hpsp-admin.php:425
 msgid "Show countdown bar"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:424
+#: includes/class-hpsp-admin.php:425
 msgid "A thin bar along the bottom of each popup empties as its time runs down, and pauses while the pointer is over it."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:437
+#: includes/class-hpsp-admin.php:438
 msgid "Timing & rotation"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:438
+#: includes/class-hpsp-admin.php:439
 msgid "Control how often popups appear and how the event feed rotates."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:441
+#: includes/class-hpsp-admin.php:442
 msgid "Initial delay (seconds)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:441
+#: includes/class-hpsp-admin.php:442
 msgid "Wait before showing the first popup after the page loads."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:442
+#: includes/class-hpsp-admin.php:443
 msgid "Display duration (seconds)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:442
+#: includes/class-hpsp-admin.php:443
 msgid "How long each popup stays on screen. Hovering pauses the timer."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:443
+#: includes/class-hpsp-admin.php:444
 msgid "Gap between popups (seconds)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:443
+#: includes/class-hpsp-admin.php:444
 msgid "Quiet time between one popup hiding and the next appearing."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:444
+#: includes/class-hpsp-admin.php:445
 msgid "Popups visible at once"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:444
+#: includes/class-hpsp-admin.php:445
 msgid "How many popups can be on screen at the same time."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:445
+#: includes/class-hpsp-admin.php:446
 msgid "Max popups per page view"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:445
+#: includes/class-hpsp-admin.php:446
 msgid "0 means unlimited."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:448
+#: includes/class-hpsp-admin.php:449
 msgid "Order"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:449
+#: includes/class-hpsp-admin.php:450
 msgid "Show the newest events first, or shuffle them for variety."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:452
+#: includes/class-hpsp-admin.php:453
 msgid "Newest first"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:453
+#: includes/class-hpsp-admin.php:454
 msgid "Random"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:456
+#: includes/class-hpsp-admin.php:457
 msgid "No repeats per session"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:456
+#: includes/class-hpsp-admin.php:457
 msgid "Don't show a visitor the same event twice in one browsing session."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:457
+#: includes/class-hpsp-admin.php:458
 msgid "Loop events"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:457
+#: includes/class-hpsp-admin.php:458
 msgid "Start over from the beginning after every event has been shown (ignored when \"No repeats\" is on)."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:458
+#: includes/class-hpsp-admin.php:459
 msgid "Snooze after close (minutes)"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:458
+#: includes/class-hpsp-admin.php:459
 msgid "When a visitor closes a popup, hide all popups for this long. 0 closes only that popup."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:473
+#: includes/class-hpsp-admin.php:474
 msgid "Live preview"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:482
+#: includes/class-hpsp-admin.php:483
 msgid "just booked"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:482
+#: includes/class-hpsp-admin.php:483
 msgid "Sunny Loft Apartment"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:483
+#: includes/class-hpsp-admin.php:484
 msgid "2 minutes ago"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:488
+#: includes/class-hpsp-admin.php:489
 msgid "Updates as you change the design settings. Use \"Replay\" to preview the animation."
 msgstr ""
 
-#: includes/class-hpsp-admin.php:489
+#: includes/class-hpsp-admin.php:490
 msgid "Replay animation"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:501
+#: includes/class-hpsp-admin.php:502
 msgid "Tools"
 msgstr ""
 
 #. translators: %d: number of queued events.
-#: includes/class-hpsp-admin.php:506
+#: includes/class-hpsp-admin.php:507
 #, php-format
 msgid "%d event currently in the queue."
 msgid_plural "%d events currently in the queue."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-hpsp-admin.php:514
+#: includes/class-hpsp-admin.php:515
 msgid "Send test popup"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:519
+#: includes/class-hpsp-admin.php:520
 msgid "Clear queue"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:625
+#. translators: %s: the stored attribute name.
+#: includes/class-hpsp-admin.php:647
+#, php-format
+msgid "%s (not currently registered)"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:652
+msgid "Member location attribute"
+msgstr ""
+
+#: includes/class-hpsp-admin.php:654
+msgid "Which user profile attribute supplies a member's location for sign-up popups and their %location% and %in_location% tokens. Only attributes on the user model are listed. Collecting real locations on profiles usually needs a Location attribute on the user model, which the Geolocation Plus extension makes available."
+msgstr ""
+
+#: includes/class-hpsp-admin.php:670
 msgid "Fallback avatar"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:629
+#: includes/class-hpsp-admin.php:674
 msgid "Choose image"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:630
+#: includes/class-hpsp-admin.php:675
 msgid "Remove"
 msgstr ""
 
-#: includes/class-hpsp-admin.php:631
+#: includes/class-hpsp-admin.php:676
 msgid "Shown instead of the grey silhouette when a member has no profile photo (Gravatar). Members who have set a photo still see their own. Leave empty to use the default WordPress avatar."
 msgstr ""
 
@@ -713,15 +728,15 @@ msgid "<strong>%username%</strong> just sent a test popup, looking good! 🎉"
 msgstr ""
 
 #: includes/class-hpsp-events.php:631
-#: includes/class-hpsp-events.php:654
-#: includes/class-hpsp-events.php:764
-#: includes/class-hpsp-events.php:770
-#: includes/class-hpsp-events.php:790
+#: includes/class-hpsp-events.php:655
+#: includes/class-hpsp-events.php:776
+#: includes/class-hpsp-events.php:782
+#: includes/class-hpsp-events.php:802
 msgid "Someone"
 msgstr ""
 
 #. translators: %s: a place name, e.g. Edinburgh.
-#: includes/class-hpsp-events.php:703
+#: includes/class-hpsp-events.php:715
 #, php-format
 msgid "in %s"
 msgstr ""

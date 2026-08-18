@@ -605,7 +605,7 @@ class Hpsp_Events {
 
 		$anonymise = ! empty( $settings['anonymise'] );
 
-		$tokens  = self::build_tokens( $event, $anonymise );
+		$tokens  = self::build_tokens( $event, $settings );
 		$message = strtr( (string) $config['template'], $tokens );
 		$message = wp_kses( $message, Hpsp_Settings::allowed_template_tags() );
 		$message = trim( preg_replace( '/[ \t]{2,}/', ' ', $message ) );
@@ -642,10 +642,11 @@ class Hpsp_Events {
 	/**
 	 * Build the token replacement map for an event.
 	 *
-	 * @param array $event     Queued event record.
-	 * @param bool  $anonymise Replace member names with "Someone".
+	 * @param array $event    Queued event record.
+	 * @param array $settings Plugin settings, as passed to render_event().
 	 */
-	protected static function build_tokens( array $event, bool $anonymise = false ): array {
+	protected static function build_tokens( array $event, array $settings = [] ): array {
+		$anonymise  = ! empty( $settings['anonymise'] );
 		$user_id    = isset( $event['user_id'] ) ? (int) $event['user_id'] : 0;
 		$listing_id = isset( $event['listing_id'] ) ? (int) $event['listing_id'] : 0;
 		$object_id  = isset( $event['object_id'] ) ? (int) $event['object_id'] : 0;
@@ -681,7 +682,18 @@ class Hpsp_Events {
 		} elseif ( 'vendor_registered' === $type && $object_id ) {
 			$location = (string) get_post_meta( $object_id, 'hp_location', true );
 		} elseif ( 'user_registered' === $type && $user_id ) {
-			$location = (string) get_user_meta( $user_id, 'hp_location', true );
+			// The source attribute is admin-configurable: user attributes store
+			// as hp_{name} user meta. A Location attribute on user profiles
+			// normally comes from the Geolocation Plus extension.
+			$attribute = isset( $settings['user_location_attribute'] ) ? sanitize_key( (string) $settings['user_location_attribute'] ) : 'location';
+
+			if ( '' !== $attribute ) {
+				$value = get_user_meta( $user_id, 'hp_' . $attribute, true );
+
+				if ( is_scalar( $value ) ) {
+					$location = (string) $value;
+				}
+			}
 		}
 
 		$location_link = '';

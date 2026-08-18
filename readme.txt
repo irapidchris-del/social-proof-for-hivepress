@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,9 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.3.2 =
+* New: a "Member location attribute" setting maps any user profile attribute to the sign-up popup location tokens, instead of assuming one named "location". Pairs naturally with a Location attribute from the Geolocation Plus extension.
 
 = 1.3.1 =
 * New: an "Anonymise members" setting shows "Someone" instead of member names, with a generic picture instead of their profile photo, and keeps member IDs out of the public popup feed.
