@@ -28,7 +28,10 @@
 	gap: 12px;
 	box-sizing: border-box;
 	max-width: var(--hpsp-max-width, 380px);
-	padding: 10px 14px 10px 10px;
+	/* One spacing scale (8pt grid: 4/8/12/16/24). A 12px inset around a 40px
+	 * image gives a 64px toast, so height:image is 1.60 - within ~1% of the
+	 * golden ratio - and nothing breaks the rhythm. */
+	padding: 12px;
 	background: var(--hpsp-bg, #111827);
 	color: var(--hpsp-fg, #f9fafb);
 	border: var(--hpsp-bd-width, 0) solid var(--hpsp-bd-color, transparent);
@@ -103,7 +106,31 @@
 	to { transform: scaleX(0); }
 }
 
-/* Image shape. */
+/* Pills need more room than flat corners, because each cap is an arc of half
+ * the toast's height that sweeps inward. Measured on the default pill at a
+ * 12px inset, the close button's top corner sat 3.7px from the arc on a
+ * one-line toast and 0.2px on a two-line one, and the image read as tight
+ * even though it is geometrically concentric with the cap. A uniform 16px
+ * inset gives the image a 16px gap and lifts the close button's clearance to
+ * 7.7px / 4.2px, while keeping it aligned with the first line of the message
+ * rather than floating at mid-height. Flat-cornered toasts keep the 12px
+ * scale, where no arc encroaches. */
+.hpsp-img-circle .hpsp-toast {
+	padding: 16px;
+}
+
+/* Image shape. A pill cap crowds a straight-edged image: on a 64px pill the
+ * left cap is a 32px-radius arc, and a square inset only 12px sits barely
+ * inside it. Non-circular images therefore get a slightly deeper inset AND a
+ * capped corner radius, which removes the conflict outright. */
+.hpsp-img-rounded .hpsp-toast,
+.hpsp-img-square .hpsp-toast {
+	/* Logical, not physical: on an RTL site the image sits on the right, and
+	   padding-left would have widened the close button's side instead. */
+	padding-inline-start: 16px;
+	border-radius: min(var(--hpsp-radius, 999px), 16px);
+}
+
 .hpsp-img-circle .hpsp-toast__img { border-radius: 50%; }
 .hpsp-img-rounded .hpsp-toast__img { border-radius: 8px; }
 .hpsp-img-square .hpsp-toast__img { border-radius: 2px; }
@@ -138,11 +165,13 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	/* 24x24 minimum hit area (WCAG 2.5.8); negative margins keep the glyph
-	 * where the smaller button used to sit. */
+	/* 24x24 minimum hit area (WCAG 2.5.8). */
 	min-width: 24px;
 	min-height: 24px;
-	margin: -4px -8px 0 0;
+	/* No negative margin: the 12px toast padding is the offset, so the close
+	 * button keeps the same rhythm as everything else (it used to sit 6px
+	 * from the edge, the only value in the toast that did). */
+	margin: 0;
 	padding: 0;
 	border: 0;
 	background: transparent;

@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,14 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.3.4 =
+* Fixed: cancelled bookings and cancelled or refunded orders no longer keep appearing in popups. Previously they carried on advertising themselves for the rest of the event lifetime, which meant your site could promote a sale that no longer existed.
+* Fixed: completing an order no longer resets its popup to "just now". Purchase popups are now dated from when the order was actually paid, so clearing a backlog of orders cannot push old sales back to the top of the feed.
+* Fixed: the Anonymous image picker no longer opens a window titled "Choose fallback avatar". Each picker now names its own field.
+* Fixed: the member location list no longer offers the hidden latitude and longitude fields, which produced popups reading "in 55.9533".
+* Changed: popup spacing now follows one consistent scale and the close button sits in line with the message. Square and rounded square images get more room, and with those shapes the corner radius is capped at 16px so a pill's curved ends cannot crowd a straight-edged image.
+* Changed: the member location attribute now starts as "None" rather than assuming an attribute called "location" exists, and latitude or longitude fields are refused if one was saved before.
 
 = 1.3.3 =
 * New: a "Member location attribute" setting maps any user profile attribute to the sign-up popup location tokens, instead of assuming one named "location". Pairs naturally with a Location attribute from the Geolocation Plus extension.

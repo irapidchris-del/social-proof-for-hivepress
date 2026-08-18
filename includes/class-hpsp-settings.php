@@ -46,7 +46,10 @@ class Hpsp_Settings {
 			'exclude_admins'          => true,
 			'anonymise'               => false,      // Show "Someone" instead of member names.
 			'anonymous_avatar'        => 0,          // Attachment shown on anonymised popups; 0 = initial badge.
-			'user_location_attribute' => 'location', // User attribute supplying sign-up locations; '' = none.
+			// Empty by default: on a stock install no user location attribute
+			// exists, and naming one that isn't there made a clean setup open
+			// showing "location (not currently registered)".
+			'user_location_attribute' => '',
 			'show_on_mobile'          => true,
 			'event_lifetime'          => 48,   // Hours an event stays eligible for display.
 			'queue_size'              => 50,   // Max events kept in the queue.
@@ -309,8 +312,12 @@ class Hpsp_Settings {
 		$output['fallback_avatar']  = isset( $input['fallback_avatar'] ) ? absint( $input['fallback_avatar'] ) : 0;
 		$output['anonymous_avatar'] = isset( $input['anonymous_avatar'] ) ? absint( $input['anonymous_avatar'] ) : 0;
 
-		// User location attribute name; an empty value means "none".
-		$output['user_location_attribute'] = isset( $input['user_location_attribute'] ) ? sanitize_key( $input['user_location_attribute'] ) : $defaults['user_location_attribute'];
+		// User location attribute name; an empty value means "none". Coordinate
+		// companions are refused: they hold raw latitude/longitude and render
+		// as "in 55.9533".
+		$location_attribute = isset( $input['user_location_attribute'] ) ? sanitize_key( $input['user_location_attribute'] ) : $defaults['user_location_attribute'];
+
+		$output['user_location_attribute'] = preg_match( '/_(latitude|longitude)$/', $location_attribute ) ? '' : $location_attribute;
 
 		// Colours.
 		foreach ( [ 'bg_color', 'text_color', 'link_color', 'border_color' ] as $key ) {

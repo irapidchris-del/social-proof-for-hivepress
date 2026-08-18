@@ -87,11 +87,22 @@
 			$toast.find('button').toggle(!!val('show_close'));
 			$toast.find('small').toggle(!!val('show_time'));
 
-			// Image shape.
+			// Image shape. Non-circular images take the deeper inset and the
+			// capped toast radius, exactly as the front end does.
 			var imageStyle = val('image_style');
 			var radius = imageStyle === 'circle' ? '50%' : (imageStyle === 'rounded' ? '8px' : '2px');
 
 			$toast.find('img, .hpsp-preview-initial').css('border-radius', radius);
+
+			// Mirror the front end: a pill gets a uniform 16px inset and a
+			// vertically centred close button, flat corners get 12px with a
+			// 16px left inset and a capped radius.
+			if (imageStyle === 'circle') {
+				$toast.css('padding', '16px');
+			} else {
+				$toast.css('padding', '12px 12px 12px 16px');
+				$toast.css('border-radius', Math.min(parseInt(val('border_radius'), 10) || 0, 16) + 'px');
+			}
 
 			// Approximate the selected position inside the stage.
 			var position = String(val('position') || 'bottom-left');
@@ -159,10 +170,14 @@
 			}
 
 			var key = $(this).attr('data-hpsp-media');
+			// The modal title comes from the field itself: a shared string
+			// headed the Anonymous image picker "Choose fallback avatar",
+			// which is the worst possible place to confuse the two.
+			var title = $(this).attr('data-hpsp-media-title') || i18n.chooseImage || '';
 
 			if (!mediaFrames[key]) {
 				mediaFrames[key] = wp.media({
-					title: i18n.chooseImage || '',
+					title: title,
 					library: { type: 'image' },
 					multiple: false,
 					button: { text: i18n.useImage || '' }
@@ -189,6 +204,17 @@
 			$('#hpsp-' + key).val(0);
 			$('.hpsp-media-preview[data-hpsp-media="' + key + '"]').attr('src', '').hide();
 			$(this).hide();
+		});
+
+		// The preview avatar is a remote Gravatar: if it cannot load, fall back
+		// to the initial badge exactly as the front-end toast does, rather
+		// than leaving an empty circle (spotted in the live preview).
+		$('#hpsp-preview-img').on('error', function () {
+			var $img = $(this);
+			var $badge = $('<span class="hpsp-preview-initial"></span>').text($img.attr('data-initial') || '');
+
+			$img.replaceWith($badge);
+			updatePreview();
 		});
 
 		// Colour pickers.

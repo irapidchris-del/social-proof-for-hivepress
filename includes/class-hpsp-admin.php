@@ -83,7 +83,7 @@ class Hpsp_Admin {
 				[
 					'shadows' => Hpsp_Settings::shadow_presets(),
 					'i18n'    => [
-						'chooseImage' => __( 'Choose fallback avatar', 'social-proof-for-hivepress' ),
+						'chooseImage' => __( 'Choose image', 'social-proof-for-hivepress' ),
 						'useImage'    => __( 'Use this image', 'social-proof-for-hivepress' ),
 					],
 				]
@@ -394,7 +394,7 @@ class Hpsp_Admin {
 			self::field_color( 'link_color', __( 'Links', 'social-proof-for-hivepress' ), __( 'Colour of links inside popups, such as listing titles.', 'social-proof-for-hivepress' ), $settings );
 			self::field_color( 'border_color', __( 'Border', 'social-proof-for-hivepress' ), __( 'Border colour, visible when the border width is above zero.', 'social-proof-for-hivepress' ), $settings );
 			self::field_number( 'border_width', __( 'Border width (px)', 'social-proof-for-hivepress' ), __( 'Set to 0 for no border.', 'social-proof-for-hivepress' ), $settings, 0, 10 );
-			self::field_number( 'border_radius', __( 'Corner radius (px)', 'social-proof-for-hivepress' ), __( 'Use a high value like 999 for the classic pill shape.', 'social-proof-for-hivepress' ), $settings, 0, 999 );
+			self::field_number( 'border_radius', __( 'Corner radius (px)', 'social-proof-for-hivepress' ), __( 'Use a high value like 999 for the classic pill shape. Square and rounded square images cap this at 16px, because a pill\'s curved ends crowd a straight-edged image.', 'social-proof-for-hivepress' ), $settings, 0, 999 );
 			self::field_select(
 				'shadow',
 				__( 'Shadow', 'social-proof-for-hivepress' ),
@@ -470,15 +470,17 @@ class Hpsp_Admin {
 		$user_id = get_current_user_id();
 		$avatar  = get_avatar_url( $user_id, [ 'size' => 96 ] );
 		$name    = Hpsp_Events::format_username( $user_id );
+		$initial = function_exists( 'mb_substr' ) ? mb_substr( $name, 0, 1 ) : substr( $name, 0, 1 );
 		?>
 		<div class="hpsp-box hpsp-preview-box">
 			<h2><?php esc_html_e( 'Live preview', 'social-proof-for-hivepress' ); ?></h2>
 			<div id="hpsp-preview-stage" class="hpsp-preview-stage">
 				<div id="hpsp-preview-toast" class="hpsp-preview-toast">
 					<?php if ( $avatar ) : ?>
-						<img id="hpsp-preview-img" src="<?php echo esc_url( $avatar ); ?>" alt="">
+						<?php // data-initial feeds the script's fallback when the avatar fails to load, which otherwise left an empty circle here. ?>
+						<img id="hpsp-preview-img" src="<?php echo esc_url( $avatar ); ?>" alt="" data-initial="<?php echo esc_attr( $initial ); ?>">
 					<?php else : ?>
-						<span class="hpsp-preview-initial"><?php echo esc_html( function_exists( 'mb_substr' ) ? mb_substr( $name, 0, 1 ) : substr( $name, 0, 1 ) ); ?></span>
+						<span class="hpsp-preview-initial"><?php echo esc_html( $initial ); ?></span>
 					<?php endif; ?>
 					<div class="hpsp-preview-content">
 						<span id="hpsp-preview-text"><strong><?php echo esc_html( $name ); ?></strong> <?php esc_html_e( 'just booked', 'social-proof-for-hivepress' ); ?> <a href="#" onclick="return false;"><?php esc_html_e( 'Sunny Loft Apartment', 'social-proof-for-hivepress' ); ?></a></span>
@@ -637,6 +639,13 @@ class Hpsp_Admin {
 					$label = (string) $attribute['edit_field']['label'];
 				}
 
+				// Geolocation's latitude/longitude companions are internal
+				// coordinate fields; picking one rendered "in 55.9533"
+				// (found on staging), so they are not offered.
+				if ( preg_match( '/_(latitude|longitude)$/', $name ) ) {
+					continue;
+				}
+
 				$options[ $name ] = '' !== $label ? $label . ' (' . $name . ')' : $name;
 			}
 		}
@@ -676,7 +685,7 @@ class Hpsp_Admin {
 			<td>
 				<input type="hidden" id="hpsp-<?php echo esc_attr( $key ); ?>" name="<?php echo esc_attr( self::name( $key ) ); ?>" value="<?php echo esc_attr( (string) $attachment_id ); ?>" data-hpsp="<?php echo esc_attr( $key ); ?>">
 				<img class="hpsp-media-preview" data-hpsp-media="<?php echo esc_attr( $key ); ?>" src="<?php echo esc_url( $preview_url ); ?>" alt="" style="<?php echo $preview_url ? '' : 'display:none;'; ?>width:48px;height:48px;object-fit:cover;border-radius:50%;vertical-align:middle;margin-right:8px;">
-				<button type="button" class="button hpsp-media-choose" data-hpsp-media="<?php echo esc_attr( $key ); ?>"><?php esc_html_e( 'Choose image', 'social-proof-for-hivepress' ); ?></button>
+				<button type="button" class="button hpsp-media-choose" data-hpsp-media="<?php echo esc_attr( $key ); ?>" data-hpsp-media-title="<?php echo esc_attr( $label ); ?>"><?php esc_html_e( 'Choose image', 'social-proof-for-hivepress' ); ?></button>
 				<button type="button" class="button hpsp-media-remove" data-hpsp-media="<?php echo esc_attr( $key ); ?>" style="<?php echo $preview_url ? '' : 'display:none;'; ?>"><?php esc_html_e( 'Remove', 'social-proof-for-hivepress' ); ?></button>
 				<?php if ( $description ) : ?>
 					<p class="description"><?php echo esc_html( $description ); ?></p>

@@ -332,12 +332,18 @@ class Hpsp_Events {
 			return;
 		}
 
+		// Use the moment the order was actually paid, not the moment this
+		// status change fired: completing a backlog of old orders otherwise
+		// announced every one of them as a brand new sale.
+		$paid = $order->get_date_paid() ? $order->get_date_paid() : $order->get_date_created();
+
 		self::push(
 			[
 				'type'       => 'order_paid',
 				'user_id'    => (int) $order->get_customer_id(),
 				'listing_id' => $listing_id,
 				'object_id'  => (int) $order_id,
+				'time'       => $paid ? $paid->getTimestamp() : time(),
 			]
 		);
 	}
@@ -385,9 +391,18 @@ class Hpsp_Events {
 			]
 		);
 
-		$event['time'] = time();
+		// A capture site may state WHEN the thing actually happened (an order
+		// knows when it was paid); everything else happened just now.
+		$event['time'] = ! empty( $event['time'] ) ? (int) $event['time'] : time();
 		$event['key']  = implode( ':', [ $event['type'], $event['object_id'], $event['user_id'], $event['listing_id'] ] );
-		$event['id']   = substr( md5( $event['key'] . '|' . $event['time'] . '|' . wp_rand() ), 0, 12 );
+
+		// The id is DERIVED from the key and time rather than randomised, so a
+		// capture that fires twice for one thing (an order moving processing ->
+		// completed) produces the same id both times without having to look the
+		// old record up. That lookup was the bug: it read the raw, unpruned
+		// queue, so an expired row could donate its expired timestamp to a
+		// genuinely new event, which prune() then deleted on the spot.
+		$event['id'] = substr( md5( $event['key'] . '|' . $event['time'] ), 0, 12 );
 
 		/**
 		 * Filter a social-proof event before it is queued. Return an empty
@@ -403,7 +418,9 @@ class Hpsp_Events {
 
 		$queue = self::get_queue();
 
-		// Deduplicate: the same action reported twice keeps only the newest record.
+		// Deduplicate: the same action reported twice keeps one record. The
+		// time and id come from the event itself (see above), so a re-fired
+		// capture cannot re-stamp a purchase as "just now".
 		$queue = array_filter(
 			$queue,
 			function ( $existing ) use ( $event ) {
@@ -413,9 +430,19 @@ class Hpsp_Events {
 
 		$queue[] = $event;
 
-		// Prune expired events and cap the queue size.
+		// Prune expired events and cap the queue size. Sort first: a re-fired
+		// capture keeps its original (older) time, so appending it at the tail
+		// would otherwise make the size cap evict a NEWER event in its place.
 		$queue = self::prune( $queue );
-		$size  = max( 10, absint( $settings['queue_size'] ) );
+
+		usort(
+			$queue,
+			function ( $a, $b ) {
+				return ( isset( $a['time'] ) ? (int) $a['time'] : 0 ) <=> ( isset( $b['time'] ) ? (int) $b['time'] : 0 );
+			}
+		);
+
+		$size = max( 10, absint( $settings['queue_size'] ) );
 
 		if ( count( $queue ) > $size ) {
 			$queue = array_slice( $queue, -$size );
@@ -594,10 +621,39 @@ class Hpsp_Events {
 				}
 				break;
 
-			// Bookings that were cancelled and vendors that were unpublished.
-			case 'booking_confirmed':
+			// Vendors that were unpublished.
 			case 'vendor_registered':
 				if ( ! $object_id || 'publish' !== get_post_status( $object_id ) ) {
+					return null;
+				}
+				break;
+
+			// Bookings that were cancelled. The status check alone is not
+			// enough: HivePress's own cancel action sets a "canceled" flag
+			// (hp_canceled meta) and can leave the post published, so a
+			// cancelled booking kept advertising itself for the whole event
+			// lifetime (found on staging).
+			case 'booking_confirmed':
+				if ( ! $object_id || 'publish' !== get_post_status( $object_id ) ) {
+					return null;
+				}
+
+				if ( get_post_meta( $object_id, 'hp_canceled', true ) ) {
+					return null;
+				}
+				break;
+
+			// Orders that were cancelled, refunded or failed after payment.
+			// Without this a refunded sale kept promoting itself, which is
+			// exactly the claim a social-proof plugin must not make.
+			case 'order_paid':
+				if ( ! $object_id || ! function_exists( 'wc_get_order' ) ) {
+					break;
+				}
+
+				$order = wc_get_order( $object_id );
+
+				if ( ! $order || ! in_array( $order->get_status(), [ 'processing', 'completed' ], true ) ) {
 					return null;
 				}
 				break;
@@ -685,7 +741,13 @@ class Hpsp_Events {
 			// The source attribute is admin-configurable: user attributes store
 			// as hp_{name} user meta. A Location attribute on user profiles
 			// normally comes from the Geolocation Plus extension.
-			$attribute = isset( $settings['user_location_attribute'] ) ? sanitize_key( (string) $settings['user_location_attribute'] ) : 'location';
+			$attribute = isset( $settings['user_location_attribute'] ) ? sanitize_key( (string) $settings['user_location_attribute'] ) : '';
+
+			// A coordinate companion saved before those were filtered out of
+			// the picker would still render "in 55.9533"; ignore them here too.
+			if ( preg_match( '/_(latitude|longitude)$/', $attribute ) ) {
+				$attribute = '';
+			}
 
 			if ( '' !== $attribute ) {
 				$value = get_user_meta( $user_id, 'hp_' . $attribute, true );

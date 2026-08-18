@@ -99,7 +99,10 @@
 	box-sizing: border-box;
 	max-width: 100%;
 	margin: auto 0 0 0;
-	padding: 10px 14px 10px 10px;
+	/* Mirrors .hpsp-toast in social-proof.css; keep the two in step. The
+	 * preview is pill-shaped by default, so it carries the pill's 16px inset;
+	 * the script narrows it to 12px for flat-cornered shapes. */
+	padding: 16px;
 	line-height: 1.4;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 	transition: opacity 300ms ease, transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -144,7 +147,7 @@
 	justify-content: center;
 	min-width: 24px;
 	min-height: 24px;
-	margin: -4px -8px 0 0;
+	margin: 0;
 	padding: 0;
 	border: 0;
 	background: transparent;
