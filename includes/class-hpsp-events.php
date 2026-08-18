@@ -626,7 +626,7 @@ class Hpsp_Events {
 			'id'      => isset( $event['id'] ) ? (string) $event['id'] : substr( md5( wp_json_encode( $event ) ), 0, 12 ),
 			'type'    => $type,
 			'html'    => $message,
-			'img'     => self::event_image( $config['image'], $user_id, $listing_id, $anonymise ),
+			'img'     => self::event_image( $config['image'], $user_id, $listing_id, $settings ),
 			'icon'    => $icon,
 			'initial' => $anonymise ? self::initial( __( 'Someone', 'social-proof-for-hivepress' ) ) : self::actor_initial( $user_id ),
 
@@ -903,18 +903,45 @@ class Hpsp_Events {
 	}
 
 	/**
+	 * Resolve a configured attachment setting to a thumbnail URL.
+	 *
+	 * @param array  $settings Plugin settings.
+	 * @param string $key      Setting key holding an attachment ID.
+	 */
+	protected static function attachment_url( array $settings, string $key ): string {
+		$attachment_id = isset( $settings[ $key ] ) ? absint( $settings[ $key ] ) : 0;
+
+		if ( ! $attachment_id ) {
+			return '';
+		}
+
+		$url = wp_get_attachment_image_url( $attachment_id, 'thumbnail' );
+
+		return $url ? $url : '';
+	}
+
+	/**
 	 * Resolve the popup image URL for an event.
 	 *
 	 * @param string $source     Image source: avatar|listing|icon|none.
 	 * @param int    $user_id    Actor user ID.
 	 * @param int    $listing_id Listing ID.
-	 * @param bool   $anonymise  Force the generic avatar so a member's own
-	 *                           Gravatar can never identify them.
+	 * @param array  $settings   Plugin settings, as passed to render_event().
 	 */
-	protected static function event_image( string $source, int $user_id, int $listing_id, bool $anonymise = false ): string {
+	protected static function event_image( string $source, int $user_id, int $listing_id, array $settings = [] ): string {
 		// Icon tiles are rendered client-side from the payload's icon name.
 		if ( 'none' === $source || 'icon' === $source ) {
 			return '';
+		}
+
+		// Anonymised popups never show a member's own picture or the fallback
+		// avatar: a recognisable photo beside the word "Someone" implies that
+		// person did it (found on staging). The admin-chosen anonymous image
+		// shows instead, or the neutral initial badge when none is set.
+		if ( ! empty( $settings['anonymise'] ) ) {
+			$anonymous = self::attachment_url( $settings, 'anonymous_avatar' );
+
+			return $anonymous ? esc_url_raw( $anonymous ) : '';
 		}
 
 		if ( 'listing' === $source && $listing_id ) {
@@ -926,22 +953,7 @@ class Hpsp_Events {
 		}
 
 		// Custom fallback avatar, shown for users without their own Gravatar.
-		$fallback    = '';
-		$fallback_id = absint( Hpsp_Settings::get_value( 'fallback_avatar', 0 ) );
-
-		if ( $fallback_id ) {
-			$fallback_url = wp_get_attachment_image_url( $fallback_id, 'thumbnail' );
-
-			if ( $fallback_url ) {
-				$fallback = $fallback_url;
-			}
-		}
-
-		// Anonymised popups never show a member's real picture: the custom
-		// fallback if one is set, otherwise nothing (the initial badge shows).
-		if ( $anonymise ) {
-			return $fallback ? esc_url_raw( $fallback ) : '';
-		}
+		$fallback = self::attachment_url( $settings, 'fallback_avatar' );
 
 		// Avatar, or fallback when the listing has no image.
 		if ( $user_id ) {

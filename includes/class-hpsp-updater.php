@@ -246,12 +246,20 @@ class Hpsp_Updater {
 		// With no reachable release the popup still renders from the local
 		// headers above; a fetched release upgrades it with the real details.
 		if ( $release ) {
-			$information->version       = $release['version'];
+			// Never show a version below the installed one: between pushing a
+			// build and publishing its release, the latest published number is
+			// older, and the popup read like a downgrade (found on staging).
+			if ( version_compare( $release['version'], HPSP_VERSION, '>' ) ) {
+				$information->version = $release['version'];
+			}
+
 			$information->last_updated  = $release['published'];
 			$information->download_link = $release['package'];
 
 			if ( $release['notes'] ) {
-				$information->sections['changelog'] = wpautop( esc_html( $release['notes'] ) );
+				// Release notes are Markdown; render them rather than showing
+				// literal asterisks (found on staging).
+				$information->sections['changelog'] = self::format_release_notes( $release['notes'] );
 			} else {
 				$information->sections['changelog'] = '<p>' . esc_html__( 'See the GitHub releases page for the changelog.', 'social-proof-for-hivepress' ) . '</p>';
 			}
@@ -374,4 +382,282 @@ class Hpsp_Updater {
 
 		return $target;
 	}
+	/**
+	 * Renders the GitHub release body as HTML for the details popup.
+	 *
+	 * Release notes are written in Markdown, and WordPress prints the
+	 * changelog tab as HTML, so passing the body straight through shows
+	 * literal `**bold**` asterisks and runs bullet lists together.
+	 *
+	 * The body is remote content, so it is escaped FIRST and only then given
+	 * the small set of tags below; the result goes through `wp_kses()` as a
+	 * second belt. Only the constructs release notes actually use are
+	 * handled: headings, bullet and numbered lists, fenced and inline code,
+	 * bold (`**` and `__`), italics (guarded `*` and `_`) and http(s) links.
+	 * Code spans and URLs are tokenised out before the emphasis rules run
+	 * and restored afterwards - see the comment at the tokenising step.
+	 *
+	 * @param string $notes Release body in Markdown.
+	 * @return string
+	 */
+	private static function format_release_notes( $notes ) {
+		$text = esc_html( trim( (string) $notes ) );
+
+		/*
+		 * The `/u` flag is not cosmetic here. Without it `\R` also matches the
+		 * single byte 0x85 (NEL), which occurs INSIDE ordinary UTF-8 emoji -
+		 * U+2705 "white heavy check mark" encodes as E2 9C 85 - so a tick in
+		 * the release notes was split mid-character, corrupting the glyph and
+		 * breaking the line in two. Every pattern below is therefore UTF-8
+		 * aware, and a failed match falls back rather than returning null.
+		 */
+		$lines = preg_split( '/\R/u', $text );
+
+		if ( ! is_array( $lines ) ) {
+
+			// Invalid UTF-8, or a PCRE limit on a very large body. Show
+			// something readable rather than an empty changelog.
+			return wpautop( $text );
+		}
+
+		$output   = '';
+		$list_tag = '';
+		$in_fence = false;
+
+		foreach ( $lines as $line ) {
+			$line = rtrim( $line );
+
+			// Fenced code blocks are passed through verbatim, with no inline
+			// formatting applied, so a snippet containing asterisks or
+			// underscores survives intact.
+			if ( preg_match( '/^\s*```/u', $line ) ) {
+				if ( $in_fence ) {
+					$output .= '</code></pre>';
+				} else {
+					$output  .= self::close_list( $list_tag ) . '<pre><code>';
+					$list_tag = '';
+				}
+
+				$in_fence = ! $in_fence;
+
+				continue;
+			}
+
+			if ( $in_fence ) {
+				$output .= $line . "\n";
+
+				continue;
+			}
+
+			/*
+			 * Tokenise BEFORE transforming, transform, then restore. The
+			 * emphasis patterns must never see the inside of a code span, a
+			 * link URL or a bare URL: an adversarial review proved (by
+			 * execution) that running them over the whole line first turned
+			 * `/docs/_v2_/` into `/docs/emv2/em/` inside an href - esc_url()
+			 * strips only the angle brackets of an injected tag and keeps its
+			 * letters as path text - and chewed `__FILE__` inside backticks
+			 * into straddled, unclosed tags that wp_kses does not rebalance
+			 * (neither pass calls force_balance_tags). Running the link pass
+			 * FIRST is not a fix either: the emphasis rules then eat the
+			 * emitted href markup itself. Placeholders sidestep both orders.
+			 * The token delimiter is a control character that esc_html leaves
+			 * alone and legitimate notes never contain; any real occurrence
+			 * is stripped first so remote content cannot address the token
+			 * table.
+			 */
+			$tokens = [];
+			$line   = str_replace( "\x1a", '', $line );
+
+			// Inline code spans first, held verbatim so their asterisks and
+			// underscores survive.
+			$line = self::tokenise(
+				'/`([^`]+)`/u',
+				$line,
+				$tokens,
+				function ( $matches ) {
+					return '<code>' . $matches[1] . '</code>';
+				}
+			);
+
+			// Markdown links next. Only http(s) targets are matched at all;
+			// the text was escaped above, so the URL is decoded before
+			// esc_url() sees it. The URL part refuses the token delimiter, so
+			// a backtick pair inside a URL (already lifted out as a code
+			// span, which is also CommonMark's precedence) stops the link
+			// forming rather than producing an anchor with a corrupted
+			// target. Link text is kept verbatim, and MAY contain a code
+			// token - a code span inside link text is legal Markdown.
+			$line = self::tokenise(
+				'/\[(.+?)\]\((https?:\/\/[^\s)\x1a]+)\)/u',
+				$line,
+				$tokens,
+				function ( $matches ) {
+					return '<a href="' . esc_url( html_entity_decode( $matches[2], ENT_QUOTES ) ) . '">' . $matches[1] . '</a>';
+				}
+			);
+
+			// Bare URLs, kept as plain text but shielded from the emphasis
+			// rules, so an underscore in a pasted URL is never eaten. This
+			// pattern must also refuse the token delimiter: restoration is
+			// single-pass, so a token swallowed into another token would
+			// come back as raw control bytes instead of its content.
+			$line = self::tokenise(
+				'/https?:\/\/[^\s\x1a]+/u',
+				$line,
+				$tokens,
+				function ( $matches ) {
+					return $matches[0];
+				}
+			);
+
+			// Emphasis, on prose only. Both double markers run before the
+			// single ones so `__FILE__` reads as GitHub renders it (bold
+			// FILE) rather than shedding stray underscores, and the single
+			// rules require non-space, non-marker characters at BOTH ends -
+			// the closing guard is what keeps "*.php and *.js" or "5 * 3"
+			// from italicising half the sentence. The `<>` exclusions stop a
+			// match crossing an already-emitted tag.
+			$line = self::replace_safely( '/\*\*\*(.+?)\*\*\*/u', '<strong><em>$1</em></strong>', $line );
+			$line = self::replace_safely( '/\*\*(.+?)\*\*/u', '<strong>$1</strong>', $line );
+			$line = self::replace_safely( '/__(.+?)__/u', '<strong>$1</strong>', $line );
+			$line = self::replace_safely( '/\*([^\s*<>](?:[^*<>]*[^\s*<>])?)\*/u', '<em>$1</em>', $line );
+			$line = self::replace_safely( '/(?<![a-z0-9_])_([^_<>]+?)_(?![a-z0-9_])/iu', '<em>$1</em>', $line );
+
+			// Restore the held-out spans.
+			$line = self::restore_tokens( $line, $tokens );
+
+			// Bullet and numbered lists, closing the other kind if it changes.
+			$tag  = '';
+			$item = [];
+
+			if ( preg_match( '/^\s*[-*]\s+(.*)$/u', $line, $item ) ) {
+				$tag = 'ul';
+			} elseif ( preg_match( '/^\s*\d+\.\s+(.*)$/u', $line, $item ) ) {
+				$tag = 'ol';
+			}
+
+			if ( $tag !== $list_tag ) {
+				$output  .= self::close_list( $list_tag ) . ( $tag ? '<' . $tag . '>' : '' );
+				$list_tag = $tag;
+			}
+
+			if ( $tag ) {
+				$output .= '<li>' . $item[1] . '</li>';
+			} elseif ( preg_match( '/^\s*#{1,6}\s+(.*)$/u', $line, $heading ) ) {
+				$output .= '<h4>' . $heading[1] . '</h4>';
+			} elseif ( '' !== trim( $line ) ) {
+				$output .= '<p>' . $line . '</p>';
+			}
+		}
+
+		$output .= self::close_list( $list_tag );
+
+		if ( $in_fence ) {
+			$output .= '</code></pre>';
+		}
+
+		return wp_kses(
+			$output,
+			[
+				'p'      => [],
+				'h4'     => [],
+				'ul'     => [],
+				'ol'     => [],
+				'li'     => [],
+				'pre'    => [],
+				'strong' => [],
+				'em'     => [],
+				'code'   => [],
+				'a'      => [ 'href' => [] ],
+			]
+		);
+	}
+
+	/**
+	 * Closes an open list, if there is one.
+	 *
+	 * @param string $tag Currently open list tag, or an empty string.
+	 * @return string
+	 */
+	private static function close_list( $tag ) {
+		return $tag ? '</' . $tag . '>' : '';
+	}
+
+	/**
+	 * Runs a replacement, keeping the original when the pattern fails.
+	 *
+	 * `preg_replace()` returns null on a PCRE error, such as the backtrack
+	 * limit on a very long line or malformed UTF-8 under the `/u` flag.
+	 * Assigning that straight back would silently blank the line.
+	 *
+	 * @param string $pattern Regular expression.
+	 * @param string $replacement Replacement string.
+	 * @param string $subject Subject string.
+	 * @return string
+	 */
+	private static function replace_safely( $pattern, $replacement, $subject ) {
+		$result = preg_replace( $pattern, $replacement, $subject );
+
+		return null === $result ? $subject : $result;
+	}
+
+	/**
+	 * Replaces every match with a placeholder, storing the rendered HTML.
+	 *
+	 * The placeholder is `\x1A{index}\x1A`; the caller strips any literal
+	 * `\x1A` from the line first, so remote content can never collide with
+	 * or address the token table.
+	 *
+	 * @param string   $pattern Regular expression.
+	 * @param string   $line Subject line.
+	 * @param array    $tokens Token store, passed by reference.
+	 * @param callable $render Renders a match into final HTML.
+	 * @return string
+	 */
+	private static function tokenise( $pattern, $line, &$tokens, $render ) {
+		$result = preg_replace_callback(
+			$pattern,
+			function ( $matches ) use ( &$tokens, $render ) {
+				$tokens[] = call_user_func( $render, $matches );
+
+				return "\x1a" . ( count( $tokens ) - 1 ) . "\x1a";
+			},
+			$line
+		);
+
+		return null === $result ? $line : $result;
+	}
+
+	/**
+	 * Restores tokenised spans into the transformed line.
+	 *
+	 * @param string $line Transformed line.
+	 * @param array  $tokens Token store.
+	 * @return string
+	 */
+	private static function restore_tokens( $line, $tokens ) {
+		$result = preg_replace_callback(
+			"/\x1a(\\d+)\x1a/",
+			function ( $matches ) use ( $tokens ) {
+				return isset( $tokens[ (int) $matches[1] ] ) ? $tokens[ (int) $matches[1] ] : '';
+			},
+			$line
+		);
+
+		return null === $result ? $line : $result;
+	}
+
+	/**
+	 * Provides the plugin details for the update information popup.
+	 *
+	 * Without this the "View version x.x.x details" link on the Plugins
+	 * screen would open an empty modal, since the plugin is not on wp.org.
+	 *
+	 * @param object|array|false $result Result object.
+	 * @param string             $action API action.
+	 * @param object             $args API arguments.
+	 * @return object|array|false
+	 */
+
 }

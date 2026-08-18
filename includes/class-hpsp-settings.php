@@ -45,6 +45,7 @@ class Hpsp_Settings {
 			'enabled'                 => true,
 			'exclude_admins'          => true,
 			'anonymise'               => false,      // Show "Someone" instead of member names.
+			'anonymous_avatar'        => 0,          // Attachment shown on anonymised popups; 0 = initial badge.
 			'user_location_attribute' => 'location', // User attribute supplying sign-up locations; '' = none.
 			'show_on_mobile'          => true,
 			'event_lifetime'          => 48,   // Hours an event stays eligible for display.
@@ -304,8 +305,9 @@ class Hpsp_Settings {
 			$output[ $key ] = in_array( $value, $allowed, true ) ? $value : $defaults[ $key ];
 		}
 
-		// Fallback avatar attachment.
-		$output['fallback_avatar'] = isset( $input['fallback_avatar'] ) ? absint( $input['fallback_avatar'] ) : 0;
+		// Media attachments: the fallback avatar and the anonymous avatar.
+		$output['fallback_avatar']  = isset( $input['fallback_avatar'] ) ? absint( $input['fallback_avatar'] ) : 0;
+		$output['anonymous_avatar'] = isset( $input['anonymous_avatar'] ) ? absint( $input['anonymous_avatar'] ) : 0;
 
 		// User location attribute name; an empty value means "none".
 		$output['user_location_attribute'] = isset( $input['user_location_attribute'] ) ? sanitize_key( $input['user_location_attribute'] ) : $defaults['user_location_attribute'];

@@ -248,7 +248,8 @@ class Hpsp_Admin {
 			<?php
 			self::field_checkbox( 'enabled', __( 'Enable popups', 'social-proof-for-hivepress' ), __( 'Master switch for all social-proof popups.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'exclude_admins', __( 'Ignore administrators', 'social-proof-for-hivepress' ), __( 'Don\'t create popups for actions performed by administrators.', 'social-proof-for-hivepress' ), $settings );
-			self::field_checkbox( 'anonymise', __( 'Anonymise members', 'social-proof-for-hivepress' ), __( 'Show "Someone" instead of member names, and a generic picture instead of their profile photo. Listing images, icons and locations still show.', 'social-proof-for-hivepress' ), $settings );
+			self::field_checkbox( 'anonymise', __( 'Anonymise members', 'social-proof-for-hivepress' ), __( 'Show "Someone" instead of member names, and your anonymous image instead of any member photo. Listing images, icons and locations still show.', 'social-proof-for-hivepress' ), $settings );
+			self::field_media_picker( 'anonymous_avatar', __( 'Anonymous image', 'social-proof-for-hivepress' ), __( 'Shown on anonymised popups instead of any member photo. Pick something neutral, such as your logo or a silhouette, because a recognisable person next to "Someone" implies they did it. Leave empty for a plain initial badge.', 'social-proof-for-hivepress' ), $settings );
 			self::field_user_location_attribute( $settings );
 			self::field_number( 'event_lifetime', __( 'Event lifetime (hours)', 'social-proof-for-hivepress' ), __( 'How long an event keeps appearing in popups. Older events are discarded so the feed never feels stale.', 'social-proof-for-hivepress' ), $settings, 1, 720 );
 			self::field_number( 'queue_size', __( 'Queue size', 'social-proof-for-hivepress' ), __( 'Maximum number of recent events kept in the rotation.', 'social-proof-for-hivepress' ), $settings, 10, 200 );
@@ -419,7 +420,7 @@ class Hpsp_Admin {
 					'square'  => __( 'Square', 'social-proof-for-hivepress' ),
 				]
 			);
-			self::field_fallback_avatar( $settings );
+			self::field_media_picker( 'fallback_avatar', __( 'Fallback avatar', 'social-proof-for-hivepress' ), __( 'Shown instead of the grey silhouette when a member has no profile photo (Gravatar). Members who have set a photo still see their own. Leave empty to use the default WordPress avatar.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'show_close', __( 'Show close button', 'social-proof-for-hivepress' ), __( 'Adds a small cross so visitors can dismiss popups.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'show_time', __( 'Show relative time', 'social-proof-for-hivepress' ), __( 'Adds a subtle "5 minutes ago" line to each popup.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'show_progress', __( 'Show countdown bar', 'social-proof-for-hivepress' ), __( 'A thin bar along the bottom of each popup empties as its time runs down, and pauses while the pointer is over it.', 'social-proof-for-hivepress' ), $settings );
@@ -658,22 +659,28 @@ class Hpsp_Admin {
 	}
 
 	/**
-	 * Fallback avatar media-picker row.
+	 * Media-picker row: an attachment setting with a WordPress library
+	 * picker (which also allows uploading), a preview and a remove button.
 	 *
-	 * @param array $settings Current settings.
+	 * @param string $key         Setting key holding the attachment ID.
+	 * @param string $label       Field label.
+	 * @param string $description Field description.
+	 * @param array  $settings    Current settings.
 	 */
-	protected static function field_fallback_avatar( array $settings ): void {
-		$attachment_id = absint( $settings['fallback_avatar'] );
+	protected static function field_media_picker( string $key, string $label, string $description, array $settings ): void {
+		$attachment_id = absint( $settings[ $key ] );
 		$preview_url   = $attachment_id ? wp_get_attachment_image_url( $attachment_id, 'thumbnail' ) : '';
 		?>
 		<tr>
-			<th scope="row"><label for="hpsp-fallback_avatar"><?php esc_html_e( 'Fallback avatar', 'social-proof-for-hivepress' ); ?></label></th>
+			<th scope="row"><label for="hpsp-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label></th>
 			<td>
-				<input type="hidden" id="hpsp-fallback_avatar" name="<?php echo esc_attr( self::name( 'fallback_avatar' ) ); ?>" value="<?php echo esc_attr( (string) $attachment_id ); ?>" data-hpsp="fallback_avatar">
-				<img id="hpsp-fallback-preview" src="<?php echo esc_url( $preview_url ); ?>" alt="" style="<?php echo $preview_url ? '' : 'display:none;'; ?>width:48px;height:48px;object-fit:cover;border-radius:50%;vertical-align:middle;margin-right:8px;">
-				<button type="button" class="button" id="hpsp-fallback-choose"><?php esc_html_e( 'Choose image', 'social-proof-for-hivepress' ); ?></button>
-				<button type="button" class="button" id="hpsp-fallback-remove" style="<?php echo $preview_url ? '' : 'display:none;'; ?>"><?php esc_html_e( 'Remove', 'social-proof-for-hivepress' ); ?></button>
-				<p class="description"><?php esc_html_e( 'Shown instead of the grey silhouette when a member has no profile photo (Gravatar). Members who have set a photo still see their own. Leave empty to use the default WordPress avatar.', 'social-proof-for-hivepress' ); ?></p>
+				<input type="hidden" id="hpsp-<?php echo esc_attr( $key ); ?>" name="<?php echo esc_attr( self::name( $key ) ); ?>" value="<?php echo esc_attr( (string) $attachment_id ); ?>" data-hpsp="<?php echo esc_attr( $key ); ?>">
+				<img class="hpsp-media-preview" data-hpsp-media="<?php echo esc_attr( $key ); ?>" src="<?php echo esc_url( $preview_url ); ?>" alt="" style="<?php echo $preview_url ? '' : 'display:none;'; ?>width:48px;height:48px;object-fit:cover;border-radius:50%;vertical-align:middle;margin-right:8px;">
+				<button type="button" class="button hpsp-media-choose" data-hpsp-media="<?php echo esc_attr( $key ); ?>"><?php esc_html_e( 'Choose image', 'social-proof-for-hivepress' ); ?></button>
+				<button type="button" class="button hpsp-media-remove" data-hpsp-media="<?php echo esc_attr( $key ); ?>" style="<?php echo $preview_url ? '' : 'display:none;'; ?>"><?php esc_html_e( 'Remove', 'social-proof-for-hivepress' ); ?></button>
+				<?php if ( $description ) : ?>
+					<p class="description"><?php echo esc_html( $description ); ?></p>
+				<?php endif; ?>
 			</td>
 		</tr>
 		<?php

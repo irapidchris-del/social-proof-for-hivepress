@@ -144,45 +144,50 @@
 		});
 
 		// --------------------------------------------------------------
-		// Fallback avatar media picker.
+		// Media pickers (fallback avatar, anonymous image): one WordPress
+		// library frame per field, shared handlers keyed by data attribute.
 		// --------------------------------------------------------------
 
-		var mediaFrame = null;
+		var mediaFrames = {};
 		var i18n = (window.HPSPAdmin && window.HPSPAdmin.i18n) || {};
 
-		$('#hpsp-fallback-choose').on('click', function (event) {
+		$(document).on('click', '.hpsp-media-choose', function (event) {
 			event.preventDefault();
 
 			if (!window.wp || !wp.media) {
 				return;
 			}
 
-			if (!mediaFrame) {
-				mediaFrame = wp.media({
+			var key = $(this).attr('data-hpsp-media');
+
+			if (!mediaFrames[key]) {
+				mediaFrames[key] = wp.media({
 					title: i18n.chooseImage || '',
 					library: { type: 'image' },
 					multiple: false,
 					button: { text: i18n.useImage || '' }
 				});
 
-				mediaFrame.on('select', function () {
-					var attachment = mediaFrame.state().get('selection').first().toJSON();
+				mediaFrames[key].on('select', function () {
+					var attachment = mediaFrames[key].state().get('selection').first().toJSON();
 					var url = (attachment.sizes && attachment.sizes.thumbnail) ? attachment.sizes.thumbnail.url : attachment.url;
 
-					$('#hpsp-fallback_avatar').val(attachment.id);
-					$('#hpsp-fallback-preview').attr('src', url).show();
-					$('#hpsp-fallback-remove').show();
+					$('#hpsp-' + key).val(attachment.id);
+					$('.hpsp-media-preview[data-hpsp-media="' + key + '"]').attr('src', url).show();
+					$('.hpsp-media-remove[data-hpsp-media="' + key + '"]').show();
 				});
 			}
 
-			mediaFrame.open();
+			mediaFrames[key].open();
 		});
 
-		$('#hpsp-fallback-remove').on('click', function (event) {
+		$(document).on('click', '.hpsp-media-remove', function (event) {
 			event.preventDefault();
 
-			$('#hpsp-fallback_avatar').val(0);
-			$('#hpsp-fallback-preview').attr('src', '').hide();
+			var key = $(this).attr('data-hpsp-media');
+
+			$('#hpsp-' + key).val(0);
+			$('.hpsp-media-preview[data-hpsp-media="' + key + '"]').attr('src', '').hide();
 			$(this).hide();
 		});
 

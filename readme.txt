@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,8 +79,11 @@ No. Events expire after the configured lifetime (48 hours by default) and the qu
 
 == Changelog ==
 
-= 1.3.2 =
+= 1.3.3 =
 * New: a "Member location attribute" setting maps any user profile attribute to the sign-up popup location tokens, instead of assuming one named "location". Pairs naturally with a Location attribute from the Geolocation Plus extension.
+* New: an "Anonymous image" picker chooses what anonymised popups show instead of member photos, straight from the media library. Empty means a plain initial badge, and the fallback avatar is never used there, so a recognisable face can no longer appear beside "Someone".
+* Fixed: the version details popup now renders its changelog as formatted text instead of raw Markdown asterisks.
+* Fixed: the version details popup no longer shows an older published version below the one installed.
 
 = 1.3.1 =
 * New: an "Anonymise members" setting shows "Someone" instead of member names, with a generic picture instead of their profile photo, and keeps member IDs out of the public popup feed.
