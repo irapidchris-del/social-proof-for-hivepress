@@ -248,6 +248,7 @@ class Hpsp_Admin {
 			<?php
 			self::field_checkbox( 'enabled', __( 'Enable popups', 'social-proof-for-hivepress' ), __( 'Master switch for all social-proof popups.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'exclude_admins', __( 'Ignore administrators', 'social-proof-for-hivepress' ), __( 'Don\'t create popups for actions performed by administrators.', 'social-proof-for-hivepress' ), $settings );
+			self::field_checkbox( 'anonymise', __( 'Anonymise members', 'social-proof-for-hivepress' ), __( 'Show "Someone" instead of member names, and a generic picture instead of their profile photo. Listing images, icons and locations still show.', 'social-proof-for-hivepress' ), $settings );
 			self::field_number( 'event_lifetime', __( 'Event lifetime (hours)', 'social-proof-for-hivepress' ), __( 'How long an event keeps appearing in popups. Older events are discarded so the feed never feels stale.', 'social-proof-for-hivepress' ), $settings, 1, 720 );
 			self::field_number( 'queue_size', __( 'Queue size', 'social-proof-for-hivepress' ), __( 'Maximum number of recent events kept in the rotation.', 'social-proof-for-hivepress' ), $settings, 10, 200 );
 			?>
@@ -356,6 +357,8 @@ class Hpsp_Admin {
 			<?php
 			self::field_select( 'position', __( 'Desktop position', 'social-proof-for-hivepress' ), __( 'Corner of the screen where popups appear on desktop.', 'social-proof-for-hivepress' ), $settings, $positions );
 			self::field_select( 'position_mobile', __( 'Mobile position', 'social-proof-for-hivepress' ), __( 'Used on screens narrower than 640px.', 'social-proof-for-hivepress' ), $settings, $positions );
+			self::field_number( 'offset_x', __( 'Offset from the side (px)', 'social-proof-for-hivepress' ), __( 'Distance from the left or right screen edge on desktop. Raise it if popups sit on top of a floating button or bar in that corner.', 'social-proof-for-hivepress' ), $settings, 0, 400 );
+			self::field_number( 'offset_y', __( 'Offset from the top or bottom (px)', 'social-proof-for-hivepress' ), __( 'Distance from the top or bottom screen edge on desktop. Popups also move up automatically while a Notifications for HivePress pop-up is using the same corner.', 'social-proof-for-hivepress' ), $settings, 0, 400 );
 			self::field_checkbox( 'show_on_mobile', __( 'Show on mobile', 'social-proof-for-hivepress' ), __( 'Untick to hide popups on small screens entirely.', 'social-proof-for-hivepress' ), $settings );
 			self::field_number( 'z_index', __( 'Z-index', 'social-proof-for-hivepress' ), __( 'Raise this if popups appear behind other elements.', 'social-proof-for-hivepress' ), $settings, 1, 2147483647 );
 			?>

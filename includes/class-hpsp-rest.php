@@ -59,6 +59,24 @@ class Hpsp_Rest {
 			set_transient( Hpsp_Events::PAYLOAD_CACHE, $events, self::CACHE_TTL );
 		}
 
+		// Belt and braces at serve time: cached payloads (or a cache layer
+		// that outlives the intended TTL) must never surface expired events.
+		// A stale test popup was seen on staging long past its 5-minute life.
+		$lifetime = max( 1, absint( $settings['event_lifetime'] ) ) * HOUR_IN_SECONDS;
+		$now      = time();
+
+		$events = array_values(
+			array_filter(
+				$events,
+				function ( $event ) use ( $lifetime, $now ) {
+					$age = $now - ( isset( $event['time'] ) ? (int) $event['time'] : 0 );
+					$ttl = ( isset( $event['type'] ) && 'test' === $event['type'] ) ? Hpsp_Events::TEST_EVENT_TTL : $lifetime;
+
+					return $age < $ttl;
+				}
+			)
+		);
+
 		return self::respond( [ 'events' => $events ] );
 	}
 
@@ -70,7 +88,9 @@ class Hpsp_Rest {
 	protected static function respond( array $data ): WP_REST_Response {
 		$response = new WP_REST_Response( $data, 200 );
 
-		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0' );
+		// No max-age here: WordPress and hosting proxies append their own, and
+		// a duplicated max-age=0 was observed on staging. no-store covers it.
+		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate' );
 
 		return $response;
 	}

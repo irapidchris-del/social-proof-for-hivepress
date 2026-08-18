@@ -168,6 +168,8 @@ class Hpsp_Frontend {
 			'--hpsp-link'      => $settings['link_color'],
 			'--hpsp-bd-color'  => $settings['border_color'],
 			'--hpsp-bd-width'  => absint( $settings['border_width'] ) . 'px',
+			'--hpsp-off-x'     => absint( $settings['offset_x'] ) . 'px',
+			'--hpsp-off-y'     => absint( $settings['offset_y'] ) . 'px',
 			'--hpsp-radius'    => absint( $settings['border_radius'] ) . 'px',
 			'--hpsp-shadow'    => isset( $shadows[ $settings['shadow'] ] ) ? $shadows[ $settings['shadow'] ] : $shadows['medium'],
 			'--hpsp-font-size' => absint( $settings['font_size'] ) . 'px',

@@ -134,11 +134,18 @@
 	opacity: 0.65;
 }
 
+/* Mirrors .hpsp-toast__close in social-proof.css, including the 24x24 hit
+ * area; keep the two in step. */
 .hpsp-preview-toast button {
 	flex: none;
 	align-self: flex-start;
-	margin: -2px -4px 0 0;
-	padding: 0 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	min-height: 24px;
+	margin: -4px -8px 0 0;
+	padding: 0;
 	border: 0;
 	background: transparent;
 	color: inherit;

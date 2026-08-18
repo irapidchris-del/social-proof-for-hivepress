@@ -61,7 +61,7 @@ class Hpsp_Events {
 				'image'       => 'avatar',
 				'icon'        => 'user-plus',
 				'enabled'     => true,
-				'tokens'      => [ 'username', 'first_name', 'site_name' ],
+				'tokens'      => [ 'username', 'first_name', 'location', 'in_location', 'site_name' ],
 			],
 			'listing_published' => [
 				'label'       => __( 'New listing published', 'social-proof-for-hivepress' ),
@@ -70,7 +70,7 @@ class Hpsp_Events {
 				'image'       => 'listing',
 				'icon'        => 'home',
 				'enabled'     => true,
-				'tokens'      => [ 'username', 'first_name', 'listing_title', 'listing_title_link', 'listing_url', 'vendor_name', 'location', 'location_link', 'site_name' ],
+				'tokens'      => [ 'username', 'first_name', 'listing_title', 'listing_title_link', 'listing_url', 'vendor_name', 'location', 'location_link', 'in_location', 'site_name' ],
 			],
 			'booking_confirmed' => [
 				'label'       => __( 'New booking', 'social-proof-for-hivepress' ),
@@ -79,7 +79,7 @@ class Hpsp_Events {
 				'image'       => 'listing',
 				'icon'        => 'calendar-check',
 				'enabled'     => true,
-				'tokens'      => [ 'username', 'first_name', 'listing_title', 'listing_title_link', 'listing_url', 'vendor_name', 'location', 'location_link', 'booking_start', 'booking_end', 'site_name' ],
+				'tokens'      => [ 'username', 'first_name', 'listing_title', 'listing_title_link', 'listing_url', 'vendor_name', 'location', 'location_link', 'in_location', 'booking_start', 'booking_end', 'site_name' ],
 			],
 			'review_submitted'  => [
 				'label'       => __( 'New review', 'social-proof-for-hivepress' ),
@@ -115,7 +115,7 @@ class Hpsp_Events {
 				'image'       => 'avatar',
 				'icon'        => 'store',
 				'enabled'     => false,
-				'tokens'      => [ 'username', 'first_name', 'vendor_name', 'site_name' ],
+				'tokens'      => [ 'username', 'first_name', 'vendor_name', 'location', 'in_location', 'site_name' ],
 			],
 			'message_sent'      => [
 				'label'       => __( 'New enquiry', 'social-proof-for-hivepress' ),
@@ -603,7 +603,9 @@ class Hpsp_Events {
 				break;
 		}
 
-		$tokens  = self::build_tokens( $event );
+		$anonymise = ! empty( $settings['anonymise'] );
+
+		$tokens  = self::build_tokens( $event, $anonymise );
 		$message = strtr( (string) $config['template'], $tokens );
 		$message = wp_kses( $message, Hpsp_Settings::allowed_template_tags() );
 		$message = trim( preg_replace( '/[ \t]{2,}/', ' ', $message ) );
@@ -624,10 +626,15 @@ class Hpsp_Events {
 			'id'      => isset( $event['id'] ) ? (string) $event['id'] : substr( md5( wp_json_encode( $event ) ), 0, 12 ),
 			'type'    => $type,
 			'html'    => $message,
-			'img'     => self::event_image( $config['image'], $user_id, $listing_id ),
+			'img'     => self::event_image( $config['image'], $user_id, $listing_id, $anonymise ),
 			'icon'    => $icon,
-			'initial' => self::actor_initial( $user_id ),
-			'actor'   => $user_id,
+			'initial' => $anonymise ? self::initial( __( 'Someone', 'social-proof-for-hivepress' ) ) : self::actor_initial( $user_id ),
+
+			// Test popups report no actor: the browser filters out a viewer's
+			// own activity, which otherwise made "Send test popup" invisible
+			// to the very admin who pressed it (found on staging). Anonymised
+			// feeds report none either, so user IDs never leave the site.
+			'actor'   => ( 'test' === $type || $anonymise ) ? 0 : $user_id,
 			'time'    => isset( $event['time'] ) ? (int) $event['time'] : time(),
 		];
 	}
@@ -635,19 +642,20 @@ class Hpsp_Events {
 	/**
 	 * Build the token replacement map for an event.
 	 *
-	 * @param array $event Queued event record.
+	 * @param array $event     Queued event record.
+	 * @param bool  $anonymise Replace member names with "Someone".
 	 */
-	protected static function build_tokens( array $event ): array {
+	protected static function build_tokens( array $event, bool $anonymise = false ): array {
 		$user_id    = isset( $event['user_id'] ) ? (int) $event['user_id'] : 0;
 		$listing_id = isset( $event['listing_id'] ) ? (int) $event['listing_id'] : 0;
 		$object_id  = isset( $event['object_id'] ) ? (int) $event['object_id'] : 0;
 		$type       = isset( $event['type'] ) ? (string) $event['type'] : '';
 
-		$username = self::format_username( $user_id );
+		$username = $anonymise ? __( 'Someone', 'social-proof-for-hivepress' ) : self::format_username( $user_id );
 
 		$tokens = [
 			'username'   => esc_html( $username ),
-			'first_name' => esc_html( self::first_name( $user_id, $username ) ),
+			'first_name' => esc_html( $anonymise ? $username : self::first_name( $user_id, $username ) ),
 			'site_name'  => esc_html( get_bloginfo( 'name' ) ),
 		];
 
@@ -662,8 +670,20 @@ class Hpsp_Events {
 			? '<a href="' . esc_url( $listing_url ) . '">' . esc_html( $listing_title ) . '</a>'
 			: esc_html( $listing_title );
 
-		// Location tokens (Geolocation extension).
-		$location      = $listing_id ? self::listing_location( $listing_id ) : '';
+		// Location tokens (Geolocation extension). Listing events use the
+		// listing's location; vendor events fall back to the vendor post's
+		// hp_location meta, and sign-ups to the user's hp_location meta (a
+		// user Location attribute, where the site defines one).
+		$location = '';
+
+		if ( $listing_id ) {
+			$location = self::listing_location( $listing_id );
+		} elseif ( 'vendor_registered' === $type && $object_id ) {
+			$location = (string) get_post_meta( $object_id, 'hp_location', true );
+		} elseif ( 'user_registered' === $type && $user_id ) {
+			$location = (string) get_user_meta( $user_id, 'hp_location', true );
+		}
+
 		$location_link = '';
 
 		if ( $location ) {
@@ -672,6 +692,16 @@ class Hpsp_Events {
 
 		$tokens['location']      = esc_html( $location );
 		$tokens['location_link'] = $location_link ? $location_link : esc_html( $location );
+
+		// Grammar-safe location: renders "in Edinburgh" only when a location
+		// exists, so templates like "%username% %in_location% just booked"
+		// never show a dangling "in" for events without one.
+		$tokens['in_location'] = '';
+
+		if ( '' !== $location ) {
+			/* translators: %s: a place name, e.g. Edinburgh. */
+			$tokens['in_location'] = sprintf( __( 'in %s', 'social-proof-for-hivepress' ), esc_html( $location ) );
+		}
 
 		// Vendor tokens.
 		$tokens['vendor_name'] = esc_html( self::vendor_name( $listing_id, $type, $object_id ) );
@@ -863,11 +893,13 @@ class Hpsp_Events {
 	/**
 	 * Resolve the popup image URL for an event.
 	 *
-	 * @param string $source     Image source: avatar|listing|none.
+	 * @param string $source     Image source: avatar|listing|icon|none.
 	 * @param int    $user_id    Actor user ID.
 	 * @param int    $listing_id Listing ID.
+	 * @param bool   $anonymise  Force the generic avatar so a member's own
+	 *                           Gravatar can never identify them.
 	 */
-	protected static function event_image( string $source, int $user_id, int $listing_id ): string {
+	protected static function event_image( string $source, int $user_id, int $listing_id, bool $anonymise = false ): string {
 		// Icon tiles are rendered client-side from the payload's icon name.
 		if ( 'none' === $source || 'icon' === $source ) {
 			return '';
@@ -891,6 +923,12 @@ class Hpsp_Events {
 			if ( $fallback_url ) {
 				$fallback = $fallback_url;
 			}
+		}
+
+		// Anonymised popups never show a member's real picture: the custom
+		// fallback if one is set, otherwise nothing (the initial badge shows).
+		if ( $anonymise ) {
+			return $fallback ? esc_url_raw( $fallback ) : '';
 		}
 
 		// Avatar, or fallback when the listing has no image.

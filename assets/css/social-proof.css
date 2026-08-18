@@ -135,8 +135,15 @@
 .hpsp-toast__close {
 	flex: none;
 	align-self: flex-start;
-	margin: -2px -4px 0 0;
-	padding: 0 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	/* 24x24 minimum hit area (WCAG 2.5.8); negative margins keep the glyph
+	 * where the smaller button used to sit. */
+	min-width: 24px;
+	min-height: 24px;
+	margin: -4px -8px 0 0;
+	padding: 0;
 	border: 0;
 	background: transparent;
 	color: inherit;
@@ -173,12 +180,14 @@
  * ----------------------------------------------------------------------- */
 
 @media (min-width: 641px) {
-	.hpsp-pos-bottom-left { left: 20px; bottom: 20px; align-items: flex-start; }
-	.hpsp-pos-bottom-center { left: 50%; bottom: 20px; transform: translateX(-50%); align-items: center; }
-	.hpsp-pos-bottom-right { right: 20px; bottom: 20px; align-items: flex-end; }
-	.hpsp-pos-top-left { left: 20px; top: 20px; align-items: flex-start; }
-	.hpsp-pos-top-center { left: 50%; top: 20px; transform: translateX(-50%); align-items: center; }
-	.hpsp-pos-top-right { right: 20px; top: 20px; align-items: flex-end; }
+	/* --hpsp-yield is set by the script while a Notifications for HivePress
+	 * pop-up stack occupies the same corner, so the two never overlap. */
+	.hpsp-pos-bottom-left { left: var(--hpsp-off-x, 20px); bottom: calc(var(--hpsp-off-y, 20px) + var(--hpsp-yield, 0px)); align-items: flex-start; }
+	.hpsp-pos-bottom-center { left: 50%; bottom: calc(var(--hpsp-off-y, 20px) + var(--hpsp-yield, 0px)); transform: translateX(-50%); align-items: center; }
+	.hpsp-pos-bottom-right { right: var(--hpsp-off-x, 20px); bottom: calc(var(--hpsp-off-y, 20px) + var(--hpsp-yield, 0px)); align-items: flex-end; }
+	.hpsp-pos-top-left { left: var(--hpsp-off-x, 20px); top: calc(var(--hpsp-off-y, 20px) + var(--hpsp-yield, 0px)); align-items: flex-start; }
+	.hpsp-pos-top-center { left: 50%; top: calc(var(--hpsp-off-y, 20px) + var(--hpsp-yield, 0px)); transform: translateX(-50%); align-items: center; }
+	.hpsp-pos-top-right { right: var(--hpsp-off-x, 20px); top: calc(var(--hpsp-off-y, 20px) + var(--hpsp-yield, 0px)); align-items: flex-end; }
 
 	.hpsp-anim-slide[class*="hpsp-pos-top"] .hpsp-toast:not(.hpsp-show) { transform: translateY(-18px); }
 }
@@ -190,12 +199,12 @@
 @media (max-width: 640px) {
 	.hpsp-root { left: 12px; right: 12px; max-width: none; }
 
-	.hpsp-posm-bottom-left { bottom: 12px; align-items: flex-start; }
-	.hpsp-posm-bottom-center { bottom: 12px; align-items: center; }
-	.hpsp-posm-bottom-right { bottom: 12px; align-items: flex-end; }
-	.hpsp-posm-top-left { top: 12px; align-items: flex-start; }
-	.hpsp-posm-top-center { top: 12px; align-items: center; }
-	.hpsp-posm-top-right { top: 12px; align-items: flex-end; }
+	.hpsp-posm-bottom-left { bottom: calc(12px + var(--hpsp-yield, 0px)); align-items: flex-start; }
+	.hpsp-posm-bottom-center { bottom: calc(12px + var(--hpsp-yield, 0px)); align-items: center; }
+	.hpsp-posm-bottom-right { bottom: calc(12px + var(--hpsp-yield, 0px)); align-items: flex-end; }
+	.hpsp-posm-top-left { top: calc(12px + var(--hpsp-yield, 0px)); align-items: flex-start; }
+	.hpsp-posm-top-center { top: calc(12px + var(--hpsp-yield, 0px)); align-items: center; }
+	.hpsp-posm-top-right { top: calc(12px + var(--hpsp-yield, 0px)); align-items: flex-end; }
 
 	.hpsp-toast { max-width: 100%; }
 

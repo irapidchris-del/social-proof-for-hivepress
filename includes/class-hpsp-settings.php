@@ -44,6 +44,7 @@ class Hpsp_Settings {
 			// General.
 			'enabled'          => true,
 			'exclude_admins'   => true,
+			'anonymise'        => false,  // Show "Someone" instead of member names.
 			'show_on_mobile'   => true,
 			'event_lifetime'   => 48,   // Hours an event stays eligible for display.
 			'queue_size'       => 50,   // Max events kept in the queue.
@@ -63,6 +64,8 @@ class Hpsp_Settings {
 			// Position & animation.
 			'position'         => 'bottom-left',
 			'position_mobile'  => 'bottom-center',
+			'offset_x'         => 20,        // Distance from the side edge on desktop, px.
+			'offset_y'         => 20,        // Distance from the top/bottom edge on desktop, px.
 			'animation'        => 'slide',   // slide|fade|pop.
 			'animation_speed'  => 300,       // Milliseconds.
 
@@ -252,7 +255,7 @@ class Hpsp_Settings {
 		$output   = [];
 
 		// Booleans. Unchecked checkboxes are simply absent from the request.
-		foreach ( [ 'enabled', 'exclude_admins', 'show_on_mobile', 'no_repeat', 'loop', 'show_close', 'show_time', 'show_progress', 'delete_data' ] as $key ) {
+		foreach ( [ 'enabled', 'exclude_admins', 'anonymise', 'show_on_mobile', 'no_repeat', 'loop', 'show_close', 'show_time', 'show_progress', 'delete_data' ] as $key ) {
 			$output[ $key ] = ! empty( $input[ $key ] );
 		}
 
@@ -266,6 +269,8 @@ class Hpsp_Settings {
 			'max_visible'      => [ 1, 5 ],
 			'max_per_page'     => [ 0, 100 ],
 			'snooze_duration'  => [ 0, 10080 ],
+			'offset_x'         => [ 0, 400 ],
+			'offset_y'         => [ 0, 400 ],
 			'animation_speed'  => [ 100, 2000 ],
 			'border_width'     => [ 0, 10 ],
 			'border_radius'    => [ 0, 999 ],

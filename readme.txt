@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,6 +45,8 @@ Every event type can be switched on or off individually and has its own message 
 * Timing controls: initial delay, display duration, gap between popups, popups visible at once, max per page view
 * Rotation controls: newest-first or random order, no-repeats-per-session, optional looping, and an event lifetime so the feed never goes stale
 * Visitor-friendly: closing a popup can snooze all popups for a configurable time, and logged-in users can hide popups permanently from HivePress Account → Settings
+* Anonymise mode: show "Someone" instead of member names, sitewide
+* Corner offsets, plus automatic room-making when Notifications for HivePress shows a pop-up in the same corner
 * Exclude popups on specific pages with URL patterns
 * Live design preview, test popup button and queue tools in the admin
 
@@ -76,6 +78,17 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.3.1 =
+* New: an "Anonymise members" setting shows "Someone" instead of member names, with a generic picture instead of their profile photo, and keeps member IDs out of the public popup feed.
+* New: location tokens for sign-up and vendor popups, and a %in_location% token that renders "in Edinburgh" only when a location exists, so wording like "Someone in Edinburgh just booked" never shows a dangling "in". Works with the HivePress Geolocation location attribute.
+* New: offset settings for the popup corner, so popups can clear floating buttons and bars that share it.
+* New: popups now move out of the way automatically while a Notifications for HivePress pop-up is using the same corner, and move back when it clears.
+* Fixed: "Send test popup" popups are now visible to the admin who sent them.
+* Fixed: the Plugins row kept its "View details" link even when GitHub is unreachable, instead of degrading to a plain website link.
+* Fixed: expired test popups can no longer linger in the popup feed past their five-minute life.
+* Fixed: an event is no longer marked as "seen" for the no-repeats setting unless the visitor's tab could actually show it.
+* Changed: the popup close button now meets the recommended minimum tap size.
 
 = 1.3.0 =
 * New: per-event icon popups. Each event can now show a Font Awesome icon on a coloured tile instead of a photo, with a curated icon list that matches HivePress's own set.

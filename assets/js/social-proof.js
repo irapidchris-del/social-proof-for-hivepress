@@ -220,7 +220,12 @@
 		root.appendChild(toast);
 		visible++;
 		shown++;
-		markSeen(ev.id);
+
+		// Only burn the no-repeat token when the tab can actually paint the
+		// toast; a hidden tab must not mark events the visitor never saw.
+		if (!document.hidden) {
+			markSeen(ev.id);
+		}
 
 		// Force a layout pass so the enter transition runs.
 		void toast.offsetWidth;
@@ -419,12 +424,72 @@
 		}
 	}
 
+	// ------------------------------------------------------------------
+	// Coexistence with Notifications for HivePress: while its pop-up stack
+	// occupies the same corner, shift our stack clear of it. The offset is
+	// live: it grows with their stack and returns to zero when it empties.
+	// ------------------------------------------------------------------
+
+	function watchNotificationsToasts() {
+		if (!window.MutationObserver) {
+			return;
+		}
+
+		var theirs = document.querySelector('.hp-notification-toasts');
+
+		// Their container is created lazily when their first pop-up arrives,
+		// so watch the body until it appears, then attach to it.
+		if (!theirs) {
+			var finder = new MutationObserver(function () {
+				var found = document.querySelector('.hp-notification-toasts');
+
+				if (found) {
+					finder.disconnect();
+					watchNotificationsToasts();
+				}
+			});
+
+			finder.observe(document.body, { childList: true });
+
+			return;
+		}
+
+		function sameVerticalEdge() {
+			var ourTop = /hpsp-pos(m)?-top/.test(root.className);
+			var theirTop = /--top-|--m-top/.test(theirs.className);
+
+			return ourTop === theirTop;
+		}
+
+		function update() {
+			var yield_ = 0;
+
+			if (theirs.childElementCount > 0 && sameVerticalEdge()) {
+				var theirRect = theirs.getBoundingClientRect();
+				var ourRect = root.getBoundingClientRect();
+
+				// Horizontal overlap check keeps opposite corners independent.
+				if (theirRect.left < ourRect.right && theirRect.right > ourRect.left) {
+					yield_ = Math.ceil(theirRect.height) + 12;
+				}
+			}
+
+			root.style.setProperty('--hpsp-yield', yield_ + 'px');
+		}
+
+		new MutationObserver(update).observe(theirs, { childList: true, subtree: true });
+		window.addEventListener('resize', update);
+		update();
+	}
+
 	function bootstrap() {
 		root = document.getElementById('hpsp-root');
 
 		if (!root || isSnoozed()) {
 			return;
 		}
+
+		watchNotificationsToasts();
 
 		if (isMobile && !cfg.mobile) {
 			return;

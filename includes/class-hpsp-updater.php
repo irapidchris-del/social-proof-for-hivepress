@@ -168,8 +168,20 @@ class Hpsp_Updater {
 
 		$release = self::get_latest_release();
 
+		// With no reachable release, still file a self-describing entry so the
+		// update transient carries our slug: without one WordPress has nothing
+		// under response OR no_update, and the Plugins row silently degrades
+		// from "View details" to a bare "Visit plugin site" link (found on
+		// staging while the repository was still private).
 		if ( ! $release ) {
-			return $update;
+			return [
+				'id'      => 'https://github.com/' . self::REPO,
+				'slug'    => self::SLUG,
+				'plugin'  => $plugin_file,
+				'version' => HPSP_VERSION,
+				'url'     => 'https://github.com/' . self::REPO,
+				'package' => '',
+			];
 		}
 
 		return [
@@ -200,10 +212,6 @@ class Hpsp_Updater {
 
 		$release = self::get_latest_release();
 
-		if ( ! $release ) {
-			return $result;
-		}
-
 		$plugin_data = get_file_data(
 			HPSP_FILE,
 			[
@@ -220,22 +228,36 @@ class Hpsp_Updater {
 			? '<a href="' . esc_url( $plugin_data['AuthorURI'] ) . '">' . esc_html( $plugin_data['Author'] ) . '</a>'
 			: esc_html( $plugin_data['Author'] );
 
-		return (object) [
-			'name'          => $plugin_data['Name'],
-			'slug'          => self::SLUG,
-			'version'       => $release['version'],
-			'author'        => $author,
-			'homepage'      => 'https://github.com/' . self::REPO,
-			'requires'      => $plugin_data['RequiresWP'],
-			'requires_php'  => $plugin_data['RequiresPHP'],
-			'last_updated'  => $release['published'],
-			'download_link' => $release['package'],
-			'donate_link'   => 'https://ko-fi.com/chrisbathivepresscommunity',
-			'sections'      => [
+		$information = (object) [
+			'name'         => $plugin_data['Name'],
+			'slug'         => self::SLUG,
+			'version'      => HPSP_VERSION,
+			'author'       => $author,
+			'homepage'     => 'https://github.com/' . self::REPO,
+			'requires'     => $plugin_data['RequiresWP'],
+			'requires_php' => $plugin_data['RequiresPHP'],
+			'donate_link'  => 'https://ko-fi.com/chrisbathivepresscommunity',
+			'sections'     => [
 				'description' => wpautop( esc_html( $plugin_data['Description'] ) ),
-				'changelog'   => $release['notes'] ? wpautop( esc_html( $release['notes'] ) ) : '<p>' . esc_html__( 'See the GitHub releases page for the changelog.', 'social-proof-for-hivepress' ) . '</p>',
+				'changelog'   => '<p>' . esc_html__( 'The changelog could not be fetched from GitHub just now. See the GitHub releases page instead.', 'social-proof-for-hivepress' ) . '</p>',
 			],
 		];
+
+		// With no reachable release the popup still renders from the local
+		// headers above; a fetched release upgrades it with the real details.
+		if ( $release ) {
+			$information->version       = $release['version'];
+			$information->last_updated  = $release['published'];
+			$information->download_link = $release['package'];
+
+			if ( $release['notes'] ) {
+				$information->sections['changelog'] = wpautop( esc_html( $release['notes'] ) );
+			} else {
+				$information->sections['changelog'] = '<p>' . esc_html__( 'See the GitHub releases page for the changelog.', 'social-proof-for-hivepress' ) . '</p>';
+			}
+		}
+
+		return $information;
 	}
 
 	/**
