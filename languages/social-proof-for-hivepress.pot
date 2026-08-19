@@ -833,3 +833,11 @@ msgstr ""
 #: social-proof-for-hivepress.php:78
 msgid "Donate"
 msgstr ""
+
+#: includes/class-hpsp-updater.php:679
+msgid "No releases have been published for Social Proof for HivePress yet, so there is nothing to update to. This is normal for a brand new copy and does not mean anything is wrong."
+msgstr ""
+
+#: includes/class-hpsp-updater.php:682
+msgid "GitHub limits how many update checks one server may make each hour, and this server has reached that limit. Nothing is wrong with the plugin or your site, and checking will work again within the hour."
+msgstr ""
