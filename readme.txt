@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.5
+Stable tag: 1.3.6
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,9 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.3.6 =
+* Changed: the plugin now declares HivePress as a required plugin, so WordPress warns you before activating it on a site without HivePress rather than leaving it doing nothing.
 
 = 1.3.5 =
 * Fixed: the documentation claimed member names are always shortened to "First L.". Popups shorten a name where the member has saved one, and otherwise show exactly the name HivePress itself displays, which you control under HivePress Settings > Users > Display Name.
