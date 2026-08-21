@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.7
+Stable tag: 1.3.8
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,13 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.3.8 =
+* Fixed - checking for updates no longer holds up an admin page. The check ran while WordPress was
+  building the Plugins screen, so on a site with several of these extensions one page load made one
+  request to GitHub after another and could sit there for many seconds, once, before behaving
+  normally again for hours. The check now runs in the background moments later. Pressing Check for
+  updates still asks GitHub straight away, because you are waiting for that answer.
 
 = 1.3.7 =
 * Checking for updates no longer reports "Could not reach GitHub" when nothing is wrong. GitHub allows a server only a limited number of anonymous update checks each hour, shared by every plugin on the site and, on shared hosting, by every other site on the same server. Running out is ordinary, but it was reported as though the site could not reach GitHub at all. Update checks now read the release from github.com, which sets no such limit, so the message no longer appears. If the limit is ever reached by some other route, the notice now says so plainly instead of blaming your connection.

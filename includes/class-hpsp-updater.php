@@ -66,6 +66,7 @@ class Hpsp_Updater {
 		add_filter( 'plugin_action_links_' . $basename, [ __CLASS__, 'add_update_check_link' ] );
 		add_filter( 'network_admin_plugin_action_links_' . $basename, [ __CLASS__, 'add_update_check_link' ] );
 
+		add_action( self::CACHE_KEY . '_refresh', [ __CLASS__, 'refresh_release' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_update_check' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'show_update_check_notice' ] );
 		add_action( 'network_admin_notices', [ __CLASS__, 'show_update_check_notice' ] );
@@ -79,6 +80,45 @@ class Hpsp_Updater {
 	}
 
 	/**
+	 * Queues a background refresh of the release cache.
+	 *
+	 * Prefers HivePress's scheduler, which is Action Scheduler and already refuses a duplicate of a job
+	 * with the same hook and arguments, so repeated admin requests coalesce into one fetch. WP-Cron is
+	 * the fallback for the same reason it exists: it also runs the work outside this request.
+	 *
+	 * Neither is blocking, so where cron itself is starved the cache simply stays cold and no update is
+	 * offered until somebody presses Check for updates, which always fetches at once.
+	 *
+	 * @return void
+	 */
+	public static function schedule_release_refresh() {
+		$hook = self::CACHE_KEY . '_refresh';
+
+		// Assigned and then tested: Core defines no __isset(), so isset( hivepress()->x ) is always
+		// false even for a component that is present and working.
+		$scheduler = function_exists( 'hivepress' ) ? hivepress()->scheduler : null;
+
+		if ( $scheduler ) {
+			$scheduler->add_action( $hook );
+
+			return;
+		}
+
+		if ( ! wp_next_scheduled( $hook ) ) {
+			wp_schedule_single_event( time(), $hook );
+		}
+	}
+
+	/**
+	 * Fills the release cache. Runs from the scheduler, never from a page render.
+	 *
+	 * @return void
+	 */
+	public static function refresh_release() {
+		self::get_latest_release( true );
+	}
+
+	/**
 	 * Get the latest GitHub release details, cached for 6 hours.
 	 *
 	 * @param bool $force Bypass the cache.
@@ -89,6 +129,23 @@ class Hpsp_Updater {
 
 		if ( ! $force && is_array( $cached ) ) {
 			return $cached ? $cached : null;
+		}
+
+		/*
+		 * A cold cache must not be filled from somebody's page load. WordPress asks every plugin for its
+		 * update details while rendering an admin request, so with several of these installed one such
+		 * request made one blocking call to GitHub after another, in series: a site with nine of them
+		 * measured 18.6 seconds on a settings screen, once, and then behaved perfectly for six hours
+		 * because the answers were cached again. That is the same shape as the listing-save incident, on
+		 * the admin side rather than the public one.
+		 *
+		 * So the fetch moves to a background job and this answers with what is already known. The manual
+		 * Check for updates link still fetches immediately, because there a person is waiting for it.
+		 */
+		if ( ! $force ) {
+			self::schedule_release_refresh();
+
+			return null;
 		}
 
 		$release = self::fetch_latest_release();

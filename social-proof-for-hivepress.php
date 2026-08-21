@@ -3,7 +3,7 @@
  * Plugin Name:       Social Proof for HivePress
  * Plugin URI:        https://github.com/irapidchris-del/social-proof-for-hivepress
  * Description:       Live, highly customisable social-proof toast popups for HivePress marketplaces: recent sign-ups, listings, bookings, reviews, sales and more.
- * Version:           1.3.7
+ * Version:           1.3.8
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Requires Plugins:  hivepress
@@ -21,7 +21,7 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
-define( 'HPSP_VERSION', '1.3.7' );
+define( 'HPSP_VERSION', '1.3.8' );
 define( 'HPSP_FILE', __FILE__ );
 define( 'HPSP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HPSP_URL', plugin_dir_url( __FILE__ ) );
