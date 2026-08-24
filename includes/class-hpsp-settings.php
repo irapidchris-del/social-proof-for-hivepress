@@ -172,6 +172,26 @@ class Hpsp_Settings {
 	 * text translatable and moves it to the new %token% form automatically.
 	 */
 	public static function upgrade(): void {
+		/*
+		 * The settings are read on every front-end request (Hpsp_Frontend::should_display() asks
+		 * before deciding whether to render anything at all) and were stored with autoload off, so
+		 * every uncached page load paid for its own query to fetch them. A small settings array
+		 * read on every request is what autoload is for.
+		 *
+		 * Flipped here rather than by passing true to update_option(): that function returns early
+		 * when the value has not changed and never touches the autoload column
+		 * (wp-includes/option.php:923), so an existing install would keep the row unautoloaded for
+		 * ever. wp_set_option_autoload() arrived in WordPress 6.4 and this plugin supports 5.8, so
+		 * it is guarded; older WordPress simply keeps today's behaviour.
+		 *
+		 * The event queue is deliberately NOT autoloaded. It holds up to 200 events, it is only
+		 * wanted while rendering a front-end page, and autoloading it would carry tens of kilobytes
+		 * into every admin screen, REST call and cron run to save one query on some of them.
+		 */
+		if ( function_exists( 'wp_set_option_autoload' ) ) {
+			wp_set_option_autoload( self::OPTION_KEY, true );
+		}
+
 		$saved = get_option( self::OPTION_KEY );
 
 		if ( ! is_array( $saved ) || empty( $saved['events'] ) || ! is_array( $saved['events'] ) ) {
@@ -200,7 +220,7 @@ class Hpsp_Settings {
 		}
 
 		if ( $changed ) {
-			update_option( self::OPTION_KEY, $saved, false );
+			update_option( self::OPTION_KEY, $saved, true );
 			self::flush_cache();
 		}
 	}

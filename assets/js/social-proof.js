@@ -454,9 +454,26 @@
 			return;
 		}
 
+		// Both stacks carry their desktop AND their mobile position class at all
+		// times, so a test that accepts either one answers for the wrong
+		// viewport: a site set to top on the phone and bottom on the desktop
+		// read as "top" on the desktop, the yield was never applied, and the two
+		// stacks painted on top of each other in the very corner this code
+		// exists to keep clear. Ask which class is in force at this width, and
+		// ask it with each plugin's own breakpoint - they are not the same
+		// number (this plugin switches at 640px, theirs at 480px).
+		function matches(query) {
+			return !!(window.matchMedia && window.matchMedia(query).matches);
+		}
+
 		function sameVerticalEdge() {
-			var ourTop = /hpsp-pos(m)?-top/.test(root.className);
-			var theirTop = /--top-|--m-top/.test(theirs.className);
+			var ourTop = matches('(max-width: 640px)')
+				? /hpsp-posm-top/.test(root.className)
+				: /hpsp-pos-top/.test(root.className);
+
+			var theirTop = matches('(max-width: 480px)')
+				? /hp-notification-toasts--m-top/.test(theirs.className)
+				: /hp-notification-toasts--top-/.test(theirs.className);
 
 			return ourTop === theirTop;
 		}

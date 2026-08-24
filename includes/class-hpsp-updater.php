@@ -48,6 +48,15 @@ class Hpsp_Updater {
 	const RATE_LIMIT_KEY = 'hpsp_github_release_rate_limit';
 
 	/**
+	 * How many times restore_tokens() will sweep a line before giving up.
+	 *
+	 * Tokens nest one level in practice (a code span inside link text), so two passes is the real
+	 * requirement; the rest is headroom for a shape nobody has written yet. It is a bound rather
+	 * than a while-true because the token store is built from remote content.
+	 */
+	const RESTORE_PASS_LIMIT = 10;
+
+	/**
 	 * Register the update hooks.
 	 */
 	public static function init(): void {
@@ -1036,32 +1045,98 @@ class Hpsp_Updater {
 	/**
 	 * Restores tokenised spans into the transformed line.
 	 *
+	 * SWEEPS IN A LOOP, BECAUSE TOKENS NEST. The link tokeniser above keeps its link text
+	 * verbatim, and a code span inside link text is legal Markdown, so a link token routinely
+	 * CONTAINS a code token. One pass replaces the outer token with text that still holds the
+	 * inner placeholder, and the reader gets the index digit instead of the content.
+	 *
+	 * Reproduced by execution against this file on 2026-08-24, with the exact input from the
+	 * report:
+	 *
+	 *   IN  : [see `wp_kses` docs](https://example.com/)
+	 *   OUT : <p><a href="https://example.com/">see 0 docs</a></p>
+	 *
+	 * The 0x1A bytes themselves never reach the screen - wp_kses_no_null() drops \x0E-\x1F on
+	 * the way out (wp-includes/kses.php:2025) - which is exactly why the symptom read as a stray
+	 * digit rather than as something obviously broken.
+	 *
+	 * A sweep that returns null has hit a PCRE limit and a sweep that changes nothing has no more
+	 * to do, so both end the loop and fall through to the strip below. That fall-through is the
+	 * second half of the fix: returning the line untouched on a PCRE failure sent every held-out
+	 * span in that line to the popup as a bare index digit.
+	 *
+	 * Anything still holding a placeholder when the sweeps end is STRIPPED rather than printed. A
+	 * missing code span reads as an omission; half a placeholder reads as a broken plugin.
+	 *
+	 * The sweep pattern is deliberately not `/u`, unlike the patterns that ran before it. It
+	 * matches one control byte and ASCII digits, so UTF-8 mode would not change what it matches,
+	 * and it would add a way to fail: `/u` makes PCRE reject a subject it reads as invalid UTF-8
+	 * outright, and a restoration that fails is the bug being fixed here.
+	 *
+	 * This is Persistent Account Menu 1.6.6's fix, ported. If a third plugin ever grows a copy of
+	 * this token scheme, it needs this version, not the single-pass one.
+	 *
 	 * @param string $line Transformed line.
 	 * @param array  $tokens Token store.
 	 * @return string
 	 */
 	private static function restore_tokens( $line, $tokens ) {
-		$result = preg_replace_callback(
-			"/\x1a(\\d+)\x1a/",
-			function ( $matches ) use ( $tokens ) {
-				return isset( $tokens[ (int) $matches[1] ] ) ? $tokens[ (int) $matches[1] ] : '';
-			},
-			$line
-		);
+		$passes = 0;
 
-		return null === $result ? $line : $result;
+		while ( false !== strpos( $line, "\x1a" ) && $passes < self::RESTORE_PASS_LIMIT ) {
+			++$passes;
+
+			$result = preg_replace_callback(
+				"/\x1a(\\d+)\x1a/",
+				function ( $matches ) use ( $tokens ) {
+					return isset( $tokens[ (int) $matches[1] ] ) ? $tokens[ (int) $matches[1] ] : '';
+				},
+				$line
+			);
+
+			if ( null === $result || $result === $line ) {
+				break;
+			}
+
+			$line = $result;
+		}
+
+		if ( false === strpos( $line, "\x1a" ) ) {
+			return $line;
+		}
+
+		/*
+		 * Strip the survivors with plain string functions and no pattern at all. This branch is
+		 * only ever reached because PCRE has just failed, so a strip that itself depends on PCRE
+		 * succeeding is no belt at all: with the backtrack limit exhausted for both calls, a
+		 * pattern strip left the index digit standing and the reader saw "the 0 docs" all over
+		 * again, which is the very symptom being fixed. A delimiter with no closing partner keeps
+		 * whatever followed it: only a whole placeholder is a placeholder.
+		 */
+		$stripped = '';
+		$rest     = $line;
+
+		while ( true ) {
+			$start = strpos( $rest, "\x1a" );
+
+			if ( false === $start ) {
+				$stripped .= $rest;
+
+				break;
+			}
+
+			$stripped .= substr( $rest, 0, $start );
+			$rest      = substr( $rest, $start + 1 );
+
+			// Drop the index digits with it, but only when a closing delimiter proves they were
+			// an index and not the note's own text.
+			$digits = strspn( $rest, '0123456789' );
+
+			if ( $digits && isset( $rest[ $digits ] ) && "\x1a" === $rest[ $digits ] ) {
+				$rest = substr( $rest, $digits + 1 );
+			}
+		}
+
+		return $stripped;
 	}
-
-	/**
-	 * Provides the plugin details for the update information popup.
-	 *
-	 * Without this the "View version x.x.x details" link on the Plugins
-	 * screen would open an empty modal, since the plugin is not on wp.org.
-	 *
-	 * @param object|array|false $result Result object.
-	 * @param string             $action API action.
-	 * @param object             $args API arguments.
-	 * @return object|array|false
-	 */
-
 }

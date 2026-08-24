@@ -218,6 +218,23 @@
 	.hpsp-pos-top-center { left: 50%; top: calc(var(--hpsp-off-y, 20px) + var(--hpsp-yield, 0px)); transform: translateX(-50%); align-items: center; }
 	.hpsp-pos-top-right { right: var(--hpsp-off-x, 20px); top: calc(var(--hpsp-off-y, 20px) + var(--hpsp-yield, 0px)); align-items: flex-end; }
 
+	/* Action Bar for HivePress is fixed to the bottom of the viewport, above the page, and a
+	 * bottom pop-up lands on top of it. Measured at 390x844 with a real pop-up on screen: the
+	 * pop-up covered 53px of the bar's 65px for the whole six seconds it was up, so a visitor
+	 * tapping Home, Browse or Account hit the pop-up instead, and at the right-hand item hit its
+	 * close button, which also arms the snooze. A mis-tap silently switched Social Proof off for
+	 * that visitor. Start the stack above the bar instead.
+	 *
+	 * --hp-action-bar-offset is the bar's height only at the widths where the bar is actually
+	 * displayed, and 0 elsewhere, which matters here because Social Proof's desktop range starts
+	 * at 641px while the bar's default mobile range runs to 767px. The nested fallback is for an
+	 * Action Bar older than the version that publishes the offset. */
+	body.hp-action-bar-visible .hpsp-pos-bottom-left,
+	body.hp-action-bar-visible .hpsp-pos-bottom-center,
+	body.hp-action-bar-visible .hpsp-pos-bottom-right {
+		bottom: calc(var(--hpsp-off-y, 20px) + var(--hpsp-yield, 0px) + var(--hp-action-bar-offset, var(--hp-action-bar-height, 56px)));
+	}
+
 	.hpsp-anim-slide[class*="hpsp-pos-top"] .hpsp-toast:not(.hpsp-show) { transform: translateY(-18px); }
 }
 
@@ -234,6 +251,14 @@
 	.hpsp-posm-top-left { top: calc(12px + var(--hpsp-yield, 0px)); align-items: flex-start; }
 	.hpsp-posm-top-center { top: calc(12px + var(--hpsp-yield, 0px)); align-items: center; }
 	.hpsp-posm-top-right { top: calc(12px + var(--hpsp-yield, 0px)); align-items: flex-end; }
+
+	/* Clear the Action Bar. See the note on the desktop rules above; this is the width the
+	 * overlap was measured at. */
+	body.hp-action-bar-visible .hpsp-posm-bottom-left,
+	body.hp-action-bar-visible .hpsp-posm-bottom-center,
+	body.hp-action-bar-visible .hpsp-posm-bottom-right {
+		bottom: calc(12px + var(--hpsp-yield, 0px) + var(--hp-action-bar-offset, var(--hp-action-bar-height, 56px)));
+	}
 
 	.hpsp-toast { max-width: 100%; }
 

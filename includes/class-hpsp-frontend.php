@@ -34,7 +34,7 @@ class Hpsp_Frontend {
 
 		// Per-user opt-out, surfaced in HivePress Account → Settings.
 		add_filter( 'hivepress/v1/models/user', [ __CLASS__, 'add_user_model_field' ] );
-		add_filter( 'hivepress/v1/forms/user_update', [ __CLASS__, 'add_user_form_field' ] );
+		add_filter( 'hivepress/v1/forms/user_update', [ __CLASS__, 'add_user_form_field' ], 10, 2 );
 	}
 
 	/**
@@ -57,6 +57,33 @@ class Hpsp_Frontend {
 		if ( $display && ! empty( $settings['exclude_paths'] ) ) {
 			$request_path = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH ) : '/';
 
+			/*
+			 * Two forms of the path are tested, because the setting could only ever have worked
+			 * against one of them.
+			 *
+			 * REQUEST_URI is the path from the domain, so on a WordPress installed in a
+			 * subdirectory the checkout page arrives as "/shop/checkout" while the field's own
+			 * placeholder teaches "/checkout". The pattern never matched, the pop-ups carried on
+			 * appearing on the pages the owner had excluded, and nothing anywhere said why. The
+			 * site-relative form below is the one the UI teaches, so it is the one that has to
+			 * work.
+			 *
+			 * The full path is still tested as well, so anybody who found the old behaviour and
+			 * typed "/shop/checkout" to work around it does not have their setting quietly
+			 * stop working on update.
+			 */
+			$candidates = [ $request_path ];
+
+			$base = untrailingslashit( (string) wp_parse_url( home_url( '/' ), PHP_URL_PATH ) );
+
+			if ( '' !== $base ) {
+				if ( 0 === strcasecmp( $request_path, $base ) ) {
+					$candidates[] = '/';
+				} elseif ( 0 === stripos( $request_path, $base . '/' ) ) {
+					$candidates[] = substr( $request_path, strlen( $base ) );
+				}
+			}
+
 			foreach ( explode( "\n", $settings['exclude_paths'] ) as $pattern ) {
 				$pattern = trim( $pattern );
 
@@ -66,9 +93,11 @@ class Hpsp_Frontend {
 
 				$regex = '#^' . str_replace( '\*', '.*', preg_quote( untrailingslashit( $pattern ), '#' ) ) . '/?$#i';
 
-				if ( preg_match( $regex, untrailingslashit( $request_path ) ? untrailingslashit( $request_path ) : '/' ) ) {
-					$display = false;
-					break;
+				foreach ( $candidates as $candidate ) {
+					if ( preg_match( $regex, untrailingslashit( $candidate ) ? untrailingslashit( $candidate ) : '/' ) ) {
+						$display = false;
+						break 2;
+					}
 				}
 			}
 		}
@@ -211,10 +240,25 @@ class Hpsp_Frontend {
 	/**
 	 * Surface the opt-out checkbox on the HivePress account settings form.
 	 *
-	 * @param array $form Form args.
+	 * Core applies a parent form's filter to its children as well: Form::__construct loops
+	 * hp\get_class_parents() and fires the filter once per class in the chain
+	 * (hivepress/includes/forms/class-form.php:159). User_Update_Profile extends User_Update, and
+	 * that child form is the profile STEP of listing submission and vendor registration, so without
+	 * this guard somebody part-way through submitting their first listing was asked whether they
+	 * would like to hide activity pop-ups, at _order 1000 and therefore as the last thing above the
+	 * submit button. Match one exact class. Vendor Analytics shipped this same bug in 1.8.0 and
+	 * Holiday Mode guards against it; this was the last unguarded sibling.
+	 *
+	 * @param array  $form Form args.
+	 * @param object $form_object Form object.
 	 */
-	public static function add_user_form_field( $form ): array {
+	public static function add_user_form_field( $form, $form_object = null ): array {
 		$form = is_array( $form ) ? $form : [];
+
+		// Fail closed: only the exact User_Update instance gets the field.
+		if ( ! is_object( $form_object ) || 'HivePress\Forms\User_Update' !== get_class( $form_object ) ) {
+			return $form;
+		}
 
 		$form['fields'][ self::OPTOUT_FIELD ] = [
 			'caption' => __( 'Hide activity popups', 'social-proof-for-hivepress' ),

@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.8
+Stable tag: 1.3.9
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,26 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.3.9 =
+* Fixed - pop-ups no longer sit on top of the Action Bar. With Action Bar for HivePress active, a
+  pop-up covered most of the bar for the whole time it was on screen, so tapping Home, Browse or
+  Account hit the pop-up instead, and tapping the right hand item hit the pop-up's close button,
+  which also stopped pop-ups for that visitor.
+* Fixed - "Hide activity popups" no longer appears in the middle of submitting a listing or
+  registering as a vendor. It belongs on the account settings page and now only appears there.
+* Fixed - pop-ups no longer overlap the Notifications for HivePress pop-ups. The check that moves
+  them clear read the wrong screen size, so a site using a top position on phones and a bottom
+  position on desktops got both stacks in the same corner.
+* Fixed - "Exclude pages" now works on a WordPress installed in a subdirectory. Paths were
+  compared against the full web address rather than the site relative one the field asks for, so
+  nothing ever matched. Paths written the old way still work.
+* Fixed - the update details popup now shows code and links inside release notes correctly,
+  instead of replacing them with a number.
+* Fixed - the settings are now loaded with the rest of the site's options rather than fetched
+  separately on every page.
+* Fixed - deleting the plugin now also clears the update check's own leftovers and cancels its
+  background update check.
 
 = 1.3.8 =
 * Fixed - checking for updates no longer holds up an admin page. The check ran while WordPress was
