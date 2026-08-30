@@ -66,14 +66,28 @@
 	text-transform: uppercase;
 }
 
-/* Icon tile: a Font Awesome glyph on an accent-coloured tile. */
+/* Icon tile: a Font Awesome glyph on a coloured tile. Tile background, glyph
+ * colour, glyph size and glyph weight are configurable; the fallbacks
+ * reproduce the pre-1.4.0 appearance (link-coloured tile, white glyph,
+ * 1.1em, no extra weight). The glyph classes (fa-solid / fa-brands) resolve
+ * against the Font Awesome 7 stylesheet the plugin enqueues whenever icon
+ * tiles are in use - HivePress's own FA5 bundle has no brand glyphs and none
+ * of the FA6/7 names. */
 .hpsp-toast__icon {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: var(--hpsp-link, #93c5fd);
-	color: #ffffff;
-	font-size: 1.1em;
+	background: var(--hpsp-icon-bg, var(--hpsp-link, #93c5fd));
+	color: var(--hpsp-icon-fg, #ffffff);
+	font-size: var(--hpsp-icon-size, 1.1em);
+}
+
+/* Icon weight: a text stroke in the glyph's own colour thickens the strokes
+ * without extra font files. paint-order keeps the stroke behind the fill so
+ * thin counters do not close up. */
+.hpsp-toast__icon i {
+	-webkit-text-stroke: var(--hpsp-icon-stroke, 0) currentColor;
+	paint-order: stroke fill;
 }
 
 /* Countdown bar: width animates from full to nothing over the display

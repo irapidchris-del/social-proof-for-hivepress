@@ -157,7 +157,11 @@
 
 			var glyph = document.createElement('i');
 
-			glyph.className = 'fas fa-' + ev.icon;
+			// fa-solid / fa-brands resolve against the Font Awesome 7
+			// stylesheet the plugin enqueues whenever icon tiles are in use;
+			// FA7 also honours the old fas/fab aliases, so payloads cached by
+			// an earlier version keep rendering.
+			glyph.className = (ev.iconStyle === 'brands' ? 'fa-brands' : 'fa-solid') + ' fa-' + ev.icon;
 			glyph.setAttribute('aria-hidden', 'true');
 			tile.appendChild(glyph);
 			toast.appendChild(tile);
