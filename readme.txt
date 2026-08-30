@@ -93,14 +93,13 @@ No. Events expire after the configured lifetime (48 hours by default) and the qu
   the bottom corner takes you back to the top. Nothing about what the settings do has changed.
 
 = 1.4.2 =
-* Changed - outline icon styles now render as outlines. An icon set to an outline style
-  previously appeared filled in, because only the solid style was included with the plugin and
-  your browser quietly used that instead.
+* Changed - the bundled icon set is the complete free one, so an icon can never be drawn in the
+  wrong style. Nothing you can pick in the icon grid looked wrong before this.
 
 = 1.4.1 =
-* Changed - the icon library is now included with the plugin instead of being loaded from a
-  third-party server, which is faster and keeps every request on your own site. Your chosen
-  icons and settings are unaffected.
+* Changed - the icons ship inside the plugin rather than being fetched from a third-party server,
+  so every request stays on your own site and the icons draw with the rest of the page. Your
+  chosen icons and settings are unaffected.
 
 = 1.4.0 =
 * Added - icon tiles are now fully customisable: icon size, weight (normal, semi-bold or bold),
