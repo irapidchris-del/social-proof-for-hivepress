@@ -2,9 +2,9 @@
 Contributors: chrisb
 Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.9
+Stable tag: 1.4.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,7 @@ Every event type can be switched on or off individually and has its own message 
 * Colours for background, text, links and border; corner radius (pill to square), border width, shadow presets, font size, max width
 * Round, rounded or square popup image (user avatar or listing photo, with automatic fallbacks)
 * Custom fallback avatar for members without a profile photo
+* Icon tiles with a large Font Awesome 6/7 icon choice (brand icons included), plus icon size, weight, colour and tile background controls
 * Timing controls: initial delay, display duration, gap between popups, popups visible at once, max per page view
 * Rotation controls: newest-first or random order, no-repeats-per-session, optional looping, and an event lifetime so the feed never goes stale
 * Visitor-friendly: closing a popup can snooze all popups for a configurable time, and logged-in users can hide popups permanently from HivePress Account → Settings
@@ -78,6 +79,39 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.4.4 =
+* Changed - internal formatting only. Some explanatory comments in the settings screen's script were
+  reworded to match the wording used across the rest of these extensions, so the file is easier to
+  compare with its siblings. Nothing about the settings screen, or anything else the plugin does,
+  has changed.
+
+= 1.4.3 =
+* Changed - the settings screen now carries the same furniture as every other extension in this
+  family. The jump links are labelled "Jump to a section:" and stay with you as you scroll, a Save
+  Changes tab sits on the right edge of the screen wherever you are on the page, and a button in
+  the bottom corner takes you back to the top. Nothing about what the settings do has changed.
+
+= 1.4.2 =
+* Changed - outline icon styles now render as outlines. An icon set to an outline style
+  previously appeared filled in, because only the solid style was included with the plugin and
+  your browser quietly used that instead.
+
+= 1.4.1 =
+* Changed - the icon library is now included with the plugin instead of being loaded from a
+  third-party server, which is faster and keeps every request on your own site. Your chosen
+  icons and settings are unaffected.
+
+= 1.4.0 =
+* Added - icon tiles are now fully customisable: icon size, weight (normal, semi-bold or bold),
+  icon colour and tile background colour, under Design > Icon tiles. Defaults match the previous
+  appearance, so nothing changes until you adjust them.
+* Added - a much larger icon choice, picked from a visual grid that shows each icon, including
+  Font Awesome 6/7 icons and brand icons such as Facebook, Instagram and WhatsApp. The Font
+  Awesome 7 stylesheet is loaded only when icon tiles are actually in use.
+* Added - quick links at the top of the settings screen jump straight to any section, and
+  sections are now visually divided.
+* Changed - settings descriptions are shorter and wrap at a readable line length.
 
 = 1.3.9 =
 * Fixed - pop-ups no longer sit on top of the Action Bar. With Action Bar for HivePress active, a

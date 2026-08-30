@@ -73,6 +73,11 @@ class Hpsp_Admin {
 		// Media library modal for the fallback avatar picker.
 		wp_enqueue_media();
 
+		// Font Awesome 7, for the live glyph previews in the icon picker.
+		// HivePress's own FA5 bundle has no brand glyphs and none of the
+		// FA6/7 names, so the picker loads the shared stylesheet itself.
+		Hpsp_Frontend::enqueue_fontawesome();
+
 		// filemtime() in the version guarantees fresh assets after every update.
 		wp_enqueue_style( 'hpsp-admin', HPSP_URL . 'assets/css/admin.css', [], HPSP_VERSION . '.' . (int) filemtime( HPSP_DIR . 'assets/css/admin.css' ) );
 		wp_enqueue_script( 'hpsp-admin', HPSP_URL . 'assets/js/admin.js', [ 'jquery', 'wp-color-picker' ], HPSP_VERSION . '.' . (int) filemtime( HPSP_DIR . 'assets/js/admin.js' ), true );
@@ -85,6 +90,15 @@ class Hpsp_Admin {
 					'i18n'    => [
 						'chooseImage' => __( 'Choose image', 'social-proof-for-hivepress' ),
 						'useImage'    => __( 'Use this image', 'social-proof-for-hivepress' ),
+					],
+
+					// Read by the shared settings-screen chrome, which expects
+					// its wording under "labels". The nav's own label is
+					// printed by render_page() rather than passed here,
+					// because that nav is server-rendered on this screen.
+					'labels'  => [
+						'save'      => __( 'Save Changes', 'social-proof-for-hivepress' ),
+						'backToTop' => __( 'Back to top', 'social-proof-for-hivepress' ),
 					],
 				]
 			) . ';',
@@ -191,9 +205,53 @@ class Hpsp_Admin {
 			'design'  => __( 'Design', 'social-proof-for-hivepress' ),
 			'timing'  => __( 'Timing', 'social-proof-for-hivepress' ),
 		];
+
+		// Every section across the tabs, as id => [ tab, label ]. Drives the
+		// quick-links bar below; the ids match the section headings rendered
+		// by section_heading().
+		$sections = [
+			'general'   => [ 'general', __( 'General', 'social-proof-for-hivepress' ) ],
+			'uninstall' => [ 'general', __( 'Removing the plugin', 'social-proof-for-hivepress' ) ],
+			'events'    => [ 'events', __( 'Tracked events', 'social-proof-for-hivepress' ) ],
+			'position'  => [ 'design', __( 'Position', 'social-proof-for-hivepress' ) ],
+			'animation' => [ 'design', __( 'Animation', 'social-proof-for-hivepress' ) ],
+			'colours'   => [ 'design', __( 'Colours & shape', 'social-proof-for-hivepress' ) ],
+			'icons'     => [ 'design', __( 'Icon tiles', 'social-proof-for-hivepress' ) ],
+			'timing'    => [ 'timing', __( 'Timing & rotation', 'social-proof-for-hivepress' ) ],
+		];
 		?>
 		<div class="wrap hpsp-wrap">
 			<h1><?php esc_html_e( 'Social Proof for HivePress', 'social-proof-for-hivepress' ); ?></h1>
+
+			<?php
+			/*
+			 * The quick-links nav, carrying the shared marker class.
+			 *
+			 * hp-settings-nav is never styled: it exists so that every extension in this
+			 * family can find a nav another one has already placed and stand down rather
+			 * than draw a second (resources/hivepress-settings.md, "The settings anchor
+			 * nav: one shared marker class"). It is on this one too even though nothing
+			 * else can reach this page, because the marker is what the convention is,
+			 * and a copy that carries it only where it is strictly needed is a copy that
+			 * teaches the next reader the wrong rule.
+			 *
+			 * This nav is rendered here rather than injected by the script, which is the
+			 * one place this screen genuinely differs from a HivePress settings tab: a
+			 * link here has to switch to the section's tab before scrolling to it, so it
+			 * needs the tab each section belongs to, which is known here and nowhere
+			 * else. The label and the styling are the family's.
+			 *
+			 * The aria-label is deliberately absent. The visible label below names the
+			 * nav for everybody; adding both would have a screen reader announce it twice.
+			 */
+			?>
+			<nav class="hp-settings-nav hpsp-settings-nav">
+				<?php // The colon is part of the wording: it reads as a lead-in to the links that follow it, not as a heading over them. ?>
+				<span class="hpsp-settings-nav__label"><?php esc_html_e( 'Jump to a section:', 'social-proof-for-hivepress' ); ?></span>
+				<?php foreach ( $sections as $section_id => $section ) : ?>
+					<a href="#hpsp-sec-<?php echo esc_attr( $section_id ); ?>" data-hpsp-jump="<?php echo esc_attr( $section_id ); ?>" data-tab="<?php echo esc_attr( $section[0] ); ?>"><?php echo esc_html( $section[1] ); ?></a>
+				<?php endforeach; ?>
+			</nav>
 
 			<div class="hpsp-layout">
 				<form method="post" action="options.php" class="hpsp-main">
@@ -241,17 +299,16 @@ class Hpsp_Admin {
 	 * @param array $settings Current settings.
 	 */
 	protected static function render_general_tab( array $settings ): void {
+		self::section_heading( 'general', __( 'General', 'social-proof-for-hivepress' ), __( 'Master switch, event capture rules and pages where popups should stay hidden.', 'social-proof-for-hivepress' ), false );
 		?>
-		<h2 class="title"><?php esc_html_e( 'General', 'social-proof-for-hivepress' ); ?></h2>
-		<p class="description"><?php esc_html_e( 'Master switch, event capture rules and pages where popups should stay hidden.', 'social-proof-for-hivepress' ); ?></p>
 		<table class="form-table" role="presentation">
 			<?php
 			self::field_checkbox( 'enabled', __( 'Enable popups', 'social-proof-for-hivepress' ), __( 'Master switch for all social-proof popups.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'exclude_admins', __( 'Ignore administrators', 'social-proof-for-hivepress' ), __( 'Don\'t create popups for actions performed by administrators.', 'social-proof-for-hivepress' ), $settings );
-			self::field_checkbox( 'anonymise', __( 'Anonymise members', 'social-proof-for-hivepress' ), __( 'Show "Someone" instead of member names, and your anonymous image instead of any member photo. Listing images, icons and locations still show.', 'social-proof-for-hivepress' ), $settings );
-			self::field_media_picker( 'anonymous_avatar', __( 'Anonymous image', 'social-proof-for-hivepress' ), __( 'Shown on anonymised popups instead of any member photo. Pick something neutral, such as your logo or a silhouette, because a recognisable person next to "Someone" implies they did it. Leave empty for a plain initial badge.', 'social-proof-for-hivepress' ), $settings );
+			self::field_checkbox( 'anonymise', __( 'Anonymise members', 'social-proof-for-hivepress' ), __( 'Show "Someone" instead of member names and photos. Listing images, icons and locations still show.', 'social-proof-for-hivepress' ), $settings );
+			self::field_media_picker( 'anonymous_avatar', __( 'Anonymous image', 'social-proof-for-hivepress' ), __( 'Shown on anonymised popups instead of any member photo. Pick something neutral, such as a logo. Leave empty for a plain initial badge.', 'social-proof-for-hivepress' ), $settings );
 			self::field_user_location_attribute( $settings );
-			self::field_number( 'event_lifetime', __( 'Event lifetime (hours)', 'social-proof-for-hivepress' ), __( 'How long an event keeps appearing in popups. Older events are discarded so the feed never feels stale.', 'social-proof-for-hivepress' ), $settings, 1, 720 );
+			self::field_number( 'event_lifetime', __( 'Event lifetime (hours)', 'social-proof-for-hivepress' ), __( 'How long an event keeps appearing in popups before it is discarded.', 'social-proof-for-hivepress' ), $settings, 1, 720 );
 			self::field_number( 'queue_size', __( 'Queue size', 'social-proof-for-hivepress' ), __( 'Maximum number of recent events kept in the rotation.', 'social-proof-for-hivepress' ), $settings, 10, 200 );
 			?>
 			<tr>
@@ -263,11 +320,12 @@ class Hpsp_Admin {
 			</tr>
 		</table>
 
-		<h2 class="title"><?php esc_html_e( 'Removing the plugin', 'social-proof-for-hivepress' ); ?></h2>
-		<p class="description"><?php esc_html_e( 'Your settings and your members\' preferences are kept if you delete this plugin, so you can reinstall it and carry on. WordPress shows its own warning on the delete screen saying the data goes too, but that warning is the same for every plugin and does not apply here unless you tick the box below. Switching the plugin off never removes anything.', 'social-proof-for-hivepress' ); ?></p>
+		<?php
+		self::section_heading( 'uninstall', __( 'Removing the plugin', 'social-proof-for-hivepress' ), __( 'Deleting this plugin keeps your settings and your members\' preferences unless you tick the box below, so a reinstall carries on where you left off. WordPress\'s generic delete-screen warning does not apply here. Switching the plugin off never removes anything.', 'social-proof-for-hivepress' ) );
+		?>
 		<table class="form-table" role="presentation">
 			<?php
-			self::field_checkbox( 'delete_data', __( 'Delete all data', 'social-proof-for-hivepress' ), __( 'Leave this unticked unless you are certain. With it ticked, deleting the plugin also removes every setting on this page and each member\'s "hide activity popups" choice. It cannot be undone and nothing asks you to confirm at the time. The popup queue and caches are always cleared on deletion either way.', 'social-proof-for-hivepress' ), $settings );
+			self::field_checkbox( 'delete_data', __( 'Delete all data', 'social-proof-for-hivepress' ), __( 'With this ticked, deleting the plugin also removes every setting here and each member\'s "hide activity popups" choice, with no extra confirmation. The popup queue and caches are always cleared either way.', 'social-proof-for-hivepress' ), $settings );
 			?>
 		</table>
 		<?php
@@ -279,11 +337,8 @@ class Hpsp_Admin {
 	 * @param array $settings Current settings.
 	 */
 	protected static function render_events_tab( array $settings ): void {
+		self::section_heading( 'events', __( 'Tracked events', 'social-proof-for-hivepress' ), __( 'Switch each event type on or off and customise its popup message. Templates support basic HTML and dynamic tokens; tokens without a value are left blank.', 'social-proof-for-hivepress' ), false );
 		?>
-		<h2 class="title"><?php esc_html_e( 'Tracked events', 'social-proof-for-hivepress' ); ?></h2>
-		<p class="description hpsp-tokens-help">
-			<?php esc_html_e( 'Switch each event type on or off and customise its popup message. Templates support basic HTML (links, bold, italics) and dynamic tokens. Tokens without a value for a given event are left blank.', 'social-proof-for-hivepress' ); ?>
-		</p>
 		<?php
 		foreach ( Hpsp_Events::types() as $type => $config ) :
 			$event = $settings['events'][ $type ];
@@ -318,12 +373,7 @@ class Hpsp_Admin {
 					</select>
 
 					<span class="hpsp-icon-choice" data-hpsp-icon-for="<?php echo esc_attr( $type ); ?>" <?php echo 'icon' === $event['image'] ? '' : 'hidden'; ?>>
-						<label for="hpsp-icon-<?php echo esc_attr( $type ); ?>" class="screen-reader-text"><?php esc_html_e( 'Icon', 'social-proof-for-hivepress' ); ?></label>
-						<select id="hpsp-icon-<?php echo esc_attr( $type ); ?>" name="<?php echo esc_attr( $base ); ?>[icon]">
-							<?php foreach ( Hpsp_Settings::allowed_icons() as $icon_name ) : ?>
-								<option value="<?php echo esc_attr( $icon_name ); ?>" <?php selected( $icon_value, $icon_name ); ?>><?php echo esc_html( $icon_name ); ?></option>
-							<?php endforeach; ?>
-						</select>
+						<?php self::icon_picker( $base . '[icon]', $type, $icon_value ); ?>
 					</span>
 				</p>
 
@@ -352,22 +402,20 @@ class Hpsp_Admin {
 			'top-center'    => __( 'Top centre', 'social-proof-for-hivepress' ),
 			'top-right'     => __( 'Top right', 'social-proof-for-hivepress' ),
 		];
+		self::section_heading( 'position', __( 'Position', 'social-proof-for-hivepress' ), __( 'Choose where popups appear on desktop and mobile screens.', 'social-proof-for-hivepress' ), false );
 		?>
-		<h2 class="title"><?php esc_html_e( 'Position', 'social-proof-for-hivepress' ); ?></h2>
-		<p class="description"><?php esc_html_e( 'Choose where popups appear on desktop and mobile screens.', 'social-proof-for-hivepress' ); ?></p>
 		<table class="form-table" role="presentation">
 			<?php
 			self::field_select( 'position', __( 'Desktop position', 'social-proof-for-hivepress' ), __( 'Corner of the screen where popups appear on desktop.', 'social-proof-for-hivepress' ), $settings, $positions );
 			self::field_select( 'position_mobile', __( 'Mobile position', 'social-proof-for-hivepress' ), __( 'Used on screens narrower than 640px.', 'social-proof-for-hivepress' ), $settings, $positions );
-			self::field_number( 'offset_x', __( 'Offset from the side (px)', 'social-proof-for-hivepress' ), __( 'Distance from the left or right screen edge on desktop. Raise it if popups sit on top of a floating button or bar in that corner.', 'social-proof-for-hivepress' ), $settings, 0, 400 );
-			self::field_number( 'offset_y', __( 'Offset from the top or bottom (px)', 'social-proof-for-hivepress' ), __( 'Distance from the top or bottom screen edge on desktop. Popups also move up automatically while a Notifications for HivePress pop-up is using the same corner.', 'social-proof-for-hivepress' ), $settings, 0, 400 );
+			self::field_number( 'offset_x', __( 'Offset from the side (px)', 'social-proof-for-hivepress' ), __( 'Distance from the left or right screen edge on desktop. Raise it if popups cover a floating button in that corner.', 'social-proof-for-hivepress' ), $settings, 0, 400 );
+			self::field_number( 'offset_y', __( 'Offset from the top or bottom (px)', 'social-proof-for-hivepress' ), __( 'Distance from the top or bottom screen edge on desktop. Popups move clear of Notifications for HivePress pop-ups automatically.', 'social-proof-for-hivepress' ), $settings, 0, 400 );
 			self::field_checkbox( 'show_on_mobile', __( 'Show on mobile', 'social-proof-for-hivepress' ), __( 'Untick to hide popups on small screens entirely.', 'social-proof-for-hivepress' ), $settings );
 			self::field_number( 'z_index', __( 'Z-index', 'social-proof-for-hivepress' ), __( 'Raise this if popups appear behind other elements.', 'social-proof-for-hivepress' ), $settings, 1, 2147483647 );
 			?>
 		</table>
 
-		<h2 class="title"><?php esc_html_e( 'Animation', 'social-proof-for-hivepress' ); ?></h2>
-		<p class="description"><?php esc_html_e( 'How popups enter and leave the screen.', 'social-proof-for-hivepress' ); ?></p>
+		<?php self::section_heading( 'animation', __( 'Animation', 'social-proof-for-hivepress' ), __( 'How popups enter and leave the screen.', 'social-proof-for-hivepress' ) ); ?>
 		<table class="form-table" role="presentation">
 			<?php
 			self::field_select(
@@ -385,8 +433,7 @@ class Hpsp_Admin {
 			?>
 		</table>
 
-		<h2 class="title"><?php esc_html_e( 'Colours & shape', 'social-proof-for-hivepress' ); ?></h2>
-		<p class="description"><?php esc_html_e( 'Match the popups to your site design. The live preview updates as you change these.', 'social-proof-for-hivepress' ); ?></p>
+		<?php self::section_heading( 'colours', __( 'Colours & shape', 'social-proof-for-hivepress' ), __( 'Match the popups to your site design. The live preview updates as you change these.', 'social-proof-for-hivepress' ) ); ?>
 		<table class="form-table" role="presentation">
 			<?php
 			self::field_color( 'bg_color', __( 'Background', 'social-proof-for-hivepress' ), __( 'Popup background colour.', 'social-proof-for-hivepress' ), $settings );
@@ -394,7 +441,7 @@ class Hpsp_Admin {
 			self::field_color( 'link_color', __( 'Links', 'social-proof-for-hivepress' ), __( 'Colour of links inside popups, such as listing titles.', 'social-proof-for-hivepress' ), $settings );
 			self::field_color( 'border_color', __( 'Border', 'social-proof-for-hivepress' ), __( 'Border colour, visible when the border width is above zero.', 'social-proof-for-hivepress' ), $settings );
 			self::field_number( 'border_width', __( 'Border width (px)', 'social-proof-for-hivepress' ), __( 'Set to 0 for no border.', 'social-proof-for-hivepress' ), $settings, 0, 10 );
-			self::field_number( 'border_radius', __( 'Corner radius (px)', 'social-proof-for-hivepress' ), __( 'Use a high value like 999 for the classic pill shape. Square and rounded square images cap this at 16px, because a pill\'s curved ends crowd a straight-edged image.', 'social-proof-for-hivepress' ), $settings, 0, 999 );
+			self::field_number( 'border_radius', __( 'Corner radius (px)', 'social-proof-for-hivepress' ), __( 'Use a high value like 999 for the classic pill shape. Capped at 16px when the image shape is square or rounded square.', 'social-proof-for-hivepress' ), $settings, 0, 999 );
 			self::field_select(
 				'shadow',
 				__( 'Shadow', 'social-proof-for-hivepress' ),
@@ -420,10 +467,30 @@ class Hpsp_Admin {
 					'square'  => __( 'Square', 'social-proof-for-hivepress' ),
 				]
 			);
-			self::field_media_picker( 'fallback_avatar', __( 'Fallback avatar', 'social-proof-for-hivepress' ), __( 'Shown instead of the grey silhouette when a member has no profile photo (Gravatar). Members who have set a photo still see their own. Leave empty to use the default WordPress avatar.', 'social-proof-for-hivepress' ), $settings );
+			self::field_media_picker( 'fallback_avatar', __( 'Fallback avatar', 'social-proof-for-hivepress' ), __( 'Shown when a member has no profile photo. Leave empty to use the default WordPress avatar.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'show_close', __( 'Show close button', 'social-proof-for-hivepress' ), __( 'Adds a small cross so visitors can dismiss popups.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'show_time', __( 'Show relative time', 'social-proof-for-hivepress' ), __( 'Adds a subtle "5 minutes ago" line to each popup.', 'social-proof-for-hivepress' ), $settings );
 			self::field_checkbox( 'show_progress', __( 'Show countdown bar', 'social-proof-for-hivepress' ), __( 'A thin bar along the bottom of each popup empties as its time runs down, and pauses while the pointer is over it.', 'social-proof-for-hivepress' ), $settings );
+			?>
+		</table>
+
+		<?php self::section_heading( 'icons', __( 'Icon tiles', 'social-proof-for-hivepress' ), __( 'Applies to events whose popup image is set to "Icon on a coloured tile" on the Events tab. The icon itself is chosen per event there.', 'social-proof-for-hivepress' ) ); ?>
+		<table class="form-table" role="presentation">
+			<?php
+			self::field_number( 'icon_size', __( 'Icon size (px)', 'social-proof-for-hivepress' ), __( 'Size of the icon glyph. 0 = automatic, scaling with the popup text.', 'social-proof-for-hivepress' ), $settings, 0, 32 );
+			self::field_select(
+				'icon_weight',
+				__( 'Icon weight', 'social-proof-for-hivepress' ),
+				__( 'Thickens the icon strokes for a heavier look.', 'social-proof-for-hivepress' ),
+				$settings,
+				[
+					'normal'   => __( 'Normal', 'social-proof-for-hivepress' ),
+					'semibold' => __( 'Semi-bold', 'social-proof-for-hivepress' ),
+					'bold'     => __( 'Bold', 'social-proof-for-hivepress' ),
+				]
+			);
+			self::field_color( 'icon_color', __( 'Icon colour', 'social-proof-for-hivepress' ), __( 'Colour of the icon glyph on the tile.', 'social-proof-for-hivepress' ), $settings );
+			self::field_color( 'icon_bg_color', __( 'Tile background', 'social-proof-for-hivepress' ), __( 'Background of the icon tile. Leave empty to follow the link colour.', 'social-proof-for-hivepress' ), $settings );
 			?>
 		</table>
 		<?php
@@ -435,9 +502,8 @@ class Hpsp_Admin {
 	 * @param array $settings Current settings.
 	 */
 	protected static function render_timing_tab( array $settings ): void {
+		self::section_heading( 'timing', __( 'Timing & rotation', 'social-proof-for-hivepress' ), __( 'Control how often popups appear and how the event feed rotates.', 'social-proof-for-hivepress' ), false );
 		?>
-		<h2 class="title"><?php esc_html_e( 'Timing & rotation', 'social-proof-for-hivepress' ); ?></h2>
-		<p class="description"><?php esc_html_e( 'Control how often popups appear and how the event feed rotates.', 'social-proof-for-hivepress' ); ?></p>
 		<table class="form-table" role="presentation">
 			<?php
 			self::field_number( 'initial_delay', __( 'Initial delay (seconds)', 'social-proof-for-hivepress' ), __( 'Wait before showing the first popup after the page loads.', 'social-proof-for-hivepress' ), $settings, 0, 120 );
@@ -551,6 +617,67 @@ class Hpsp_Admin {
 	 */
 	protected static function name( string $key ): string {
 		return Hpsp_Settings::OPTION_KEY . '[' . $key . ']';
+	}
+
+	/**
+	 * Anchored section heading with an optional divider above it.
+	 *
+	 * The id must match an entry in the quick-links map in render_page(), so
+	 * the bar at the top of the screen can jump straight to the section.
+	 *
+	 * @param string $id          Section id (without the hpsp-sec- prefix).
+	 * @param string $title       Section title.
+	 * @param string $description Section description.
+	 * @param bool   $divider     Whether to draw a divider above the heading.
+	 */
+	protected static function section_heading( string $id, string $title, string $description = '', bool $divider = true ): void {
+		if ( $divider ) {
+			echo '<hr class="hpsp-divider">';
+		}
+		?>
+		<h2 class="title hpsp-section-title" id="hpsp-sec-<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $title ); ?></h2>
+		<?php if ( $description ) : ?>
+			<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php
+		endif;
+	}
+
+	/**
+	 * Icon picker: a toggle button showing the current glyph, opening a grid
+	 * of radio options that each render their actual Font Awesome glyph.
+	 *
+	 * Previews render as `fa-solid fa-{slug}` / `fa-brands fa-{slug}` against
+	 * the shared Font Awesome 7 stylesheet enqueued in enqueue() - HivePress's
+	 * own FA5 bundle has no brand glyphs and none of the FA6/7 names (see
+	 * Hpsp_Settings::icons()). The `fa-solid`/`fa-brands` class on the
+	 * option carries the style to admin.js so the toggle button can mirror
+	 * the chosen glyph.
+	 *
+	 * @param string $input_name Full input name attribute for the icon value.
+	 * @param string $type       Event type, used for unique ids.
+	 * @param string $current    Currently selected icon slug.
+	 */
+	protected static function icon_picker( string $input_name, string $type, string $current ): void {
+		$icons         = Hpsp_Settings::icons();
+		$current       = isset( $icons[ $current ] ) ? $current : (string) key( $icons );
+		$current_class = ( 'brands' === $icons[ $current ] ? 'fa-brands' : 'fa-solid' ) . ' fa-' . $current;
+		?>
+		<span class="hpsp-icon-picker" data-hpsp-icon-picker="<?php echo esc_attr( $type ); ?>">
+			<button type="button" class="button hpsp-icon-toggle" aria-expanded="false">
+				<i class="hpsp-glyph <?php echo esc_attr( $current_class ); ?>" aria-hidden="true"></i>
+				<span class="hpsp-icon-toggle__name"><?php echo esc_html( $current ); ?></span>
+			</button>
+			<span class="hpsp-icon-grid" hidden>
+				<?php foreach ( $icons as $icon_name => $icon_group ) : ?>
+					<label class="hpsp-icon-option">
+						<input type="radio" name="<?php echo esc_attr( $input_name ); ?>" value="<?php echo esc_attr( $icon_name ); ?>" <?php checked( $current, $icon_name ); ?>>
+						<i class="hpsp-glyph <?php echo esc_attr( ( 'brands' === $icon_group ? 'fa-brands' : 'fa-solid' ) . ' fa-' . $icon_name ); ?>" aria-hidden="true"></i>
+						<span class="hpsp-icon-option__name"><?php echo esc_html( $icon_name ); ?></span>
+					</label>
+				<?php endforeach; ?>
+			</span>
+		</span>
+		<?php
 	}
 
 	/**
@@ -675,7 +802,7 @@ class Hpsp_Admin {
 			'user_location_attribute',
 			__( 'Member location attribute', 'social-proof-for-hivepress' ),
 			// phpcs:ignore WordPress.WP.I18n.UnorderedPlaceholdersText, WordPress.WP.I18n.MissingTranslatorsComment -- %location% and %in_location% are literal token names shown to the admin, not printf placeholders.
-			__( 'Which user profile attribute supplies a member\'s location for sign-up popups and their %location% and %in_location% tokens. Only attributes on the user model are listed. Collecting real locations on profiles usually needs a Location attribute on the user model, which the Geolocation Plus extension makes available.', 'social-proof-for-hivepress' ),
+			__( 'User profile attribute that fills the %location% and %in_location% tokens on sign-up popups. Collecting locations usually needs a Location attribute on the user model (Geolocation Plus).', 'social-proof-for-hivepress' ),
 			$settings,
 			$options
 		);

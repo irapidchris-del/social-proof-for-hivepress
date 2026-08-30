@@ -688,28 +688,35 @@ class Hpsp_Events {
 			return null;
 		}
 
-		// Icon tiles need Font Awesome, which HivePress enqueues site-wide;
-		// without HivePress the popup falls back to the initial badge.
-		$icon = '';
+		// Icon tiles use the Font Awesome 7 stylesheet the plugin enqueues
+		// itself whenever an enabled event uses them (HivePress only bundles
+		// the FA5 solid font, which has no brand glyphs and none of the FA6/7
+		// names - see Hpsp_Frontend::enqueue_fontawesome()). The style
+		// travels with the slug so the browser emits the right class pair:
+		// `fa-solid fa-{slug}` or `fa-brands fa-{slug}`.
+		$icon       = '';
+		$icon_style = '';
 
-		if ( 'icon' === $config['image'] && function_exists( 'hivepress' ) && in_array( (string) $config['icon'], Hpsp_Settings::allowed_icons(), true ) ) {
-			$icon = (string) $config['icon'];
+		if ( 'icon' === $config['image'] && in_array( (string) $config['icon'], Hpsp_Settings::allowed_icons(), true ) ) {
+			$icon       = (string) $config['icon'];
+			$icon_style = Hpsp_Settings::icon_style( $icon );
 		}
 
 		return [
-			'id'      => isset( $event['id'] ) ? (string) $event['id'] : substr( md5( wp_json_encode( $event ) ), 0, 12 ),
-			'type'    => $type,
-			'html'    => $message,
-			'img'     => self::event_image( $config['image'], $user_id, $listing_id, $settings ),
-			'icon'    => $icon,
-			'initial' => $anonymise ? self::initial( __( 'Someone', 'social-proof-for-hivepress' ) ) : self::actor_initial( $user_id ),
+			'id'        => isset( $event['id'] ) ? (string) $event['id'] : substr( md5( wp_json_encode( $event ) ), 0, 12 ),
+			'type'      => $type,
+			'html'      => $message,
+			'img'       => self::event_image( $config['image'], $user_id, $listing_id, $settings ),
+			'icon'      => $icon,
+			'iconStyle' => $icon_style,
+			'initial'   => $anonymise ? self::initial( __( 'Someone', 'social-proof-for-hivepress' ) ) : self::actor_initial( $user_id ),
 
 			// Test popups report no actor: the browser filters out a viewer's
 			// own activity, which otherwise made "Send test popup" invisible
 			// to the very admin who pressed it (found on staging). Anonymised
 			// feeds report none either, so user IDs never leave the site.
-			'actor'   => ( 'test' === $type || $anonymise ) ? 0 : $user_id,
-			'time'    => isset( $event['time'] ) ? (int) $event['time'] : time(),
+			'actor'     => ( 'test' === $type || $anonymise ) ? 0 : $user_id,
+			'time'      => isset( $event['time'] ) ? (int) $event['time'] : time(),
 		];
 	}
 

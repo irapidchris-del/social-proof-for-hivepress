@@ -85,6 +85,10 @@ class Hpsp_Settings {
 			'font_size'               => 14,
 			'max_width'               => 380,
 			'image_style'             => 'circle',  // circle|rounded|square.
+			'icon_size'               => 0,         // Glyph size in px; 0 = automatic (1.1x the popup text).
+			'icon_weight'             => 'normal',  // normal|semibold|bold, drawn with a text stroke.
+			'icon_color'              => '#ffffff', // Glyph colour on icon tiles.
+			'icon_bg_color'           => '',        // Icon tile background; '' = follow the link colour.
 			'fallback_avatar'         => 0,         // Attachment ID; 0 = default WordPress avatar.
 			'show_close'              => true,
 			'show_time'               => true,
@@ -226,35 +230,120 @@ class Hpsp_Settings {
 	}
 
 	/**
-	 * Icons offered for popup tiles.
+	 * Icons offered for popup tiles, as slug => style (solid|brands).
 	 *
-	 * A curated subset of the Font Awesome 5 solid set that HivePress bundles;
-	 * every name is verified against core's icons config and stylesheet, so a
-	 * choice here can never render as a blank square while HivePress is active.
+	 * Rendered as `fa-solid fa-{slug}` / `fa-brands fa-{slug}` against the
+	 * Font Awesome 7 stylesheet the plugin loads itself (see
+	 * Hpsp_Frontend::enqueue_fontawesome()): HivePress core only bundles the
+	 * Font Awesome 5 SOLID font, which has no brand glyphs and none of the
+	 * FA6/7 names. Every slug below was verified against Font Awesome 7.1.0
+	 * free on 2026-08-29; the pre-1.4.0 slugs (home, shopping-cart,
+	 * map-marker-alt, check-circle...) are FA5 names that FA7 keeps as
+	 * aliases, so stored choices from older versions keep rendering
+	 * unchanged.
+	 */
+	public static function icons(): array {
+		return [
+			// People & community.
+			'user-plus'         => 'solid',
+			'users'             => 'solid',
+			'user-group'        => 'solid',
+			'handshake'         => 'solid',
+			// Listings & places.
+			'home'              => 'solid',
+			'store'             => 'solid',
+			'map-marker-alt'    => 'solid',
+			'globe'             => 'solid',
+			'magnifying-glass'  => 'solid',
+			'key'               => 'solid',
+			// Bookings & time.
+			'calendar-check'    => 'solid',
+			'calendar-days'     => 'solid',
+			'clock'             => 'solid',
+			// Reviews & praise.
+			'star'              => 'solid',
+			'trophy'            => 'solid',
+			'medal'             => 'solid',
+			'crown'             => 'solid',
+			'certificate'       => 'solid',
+			'thumbs-up'         => 'solid',
+			'heart'             => 'solid',
+			'heart-pulse'       => 'solid',
+			// Commerce.
+			'shopping-cart'     => 'solid',
+			'credit-card'       => 'solid',
+			'coins'             => 'solid',
+			'tag'               => 'solid',
+			'gift'              => 'solid',
+			'gem'               => 'solid',
+			'truck'             => 'solid',
+			// Messages & alerts.
+			'envelope'          => 'solid',
+			'comment'           => 'solid',
+			'comments'          => 'solid',
+			'phone'             => 'solid',
+			'bell'              => 'solid',
+			'bullhorn'          => 'solid',
+			'eye'               => 'solid',
+			// Status & energy.
+			'check-circle'      => 'solid',
+			'shield-halved'     => 'solid',
+			'fire'              => 'solid',
+			'bolt'              => 'solid',
+			'rocket'            => 'solid',
+			'champagne-glasses' => 'solid',
+			// Trades & leisure.
+			'briefcase'         => 'solid',
+			'graduation-cap'    => 'solid',
+			'wrench'            => 'solid',
+			'camera'            => 'solid',
+			'palette'           => 'solid',
+			'music'             => 'solid',
+			'utensils'          => 'solid',
+			'mug-hot'           => 'solid',
+			'seedling'          => 'solid',
+			'paw'               => 'solid',
+			'dumbbell'          => 'solid',
+			'umbrella-beach'    => 'solid',
+			'plane'             => 'solid',
+			'car'               => 'solid',
+			'bookmark'          => 'solid',
+			// Brands.
+			'facebook'          => 'brands',
+			'instagram'         => 'brands',
+			'x-twitter'         => 'brands',
+			'tiktok'            => 'brands',
+			'youtube'           => 'brands',
+			'linkedin'          => 'brands',
+			'whatsapp'          => 'brands',
+			'telegram'          => 'brands',
+			'pinterest'         => 'brands',
+			'discord'           => 'brands',
+			'spotify'           => 'brands',
+			'airbnb'            => 'brands',
+			'apple'             => 'brands',
+			'android'           => 'brands',
+			'google'            => 'brands',
+		];
+	}
+
+	/**
+	 * Icon slugs offered for popup tiles.
 	 */
 	public static function allowed_icons(): array {
-		return [
-			'user-plus',
-			'home',
-			'calendar-check',
-			'star',
-			'shopping-cart',
-			'heart',
-			'store',
-			'envelope',
-			'bell',
-			'bullhorn',
-			'check-circle',
-			'fire',
-			'gift',
-			'thumbs-up',
-			'bolt',
-			'trophy',
-			'comment',
-			'map-marker-alt',
-			'tag',
-			'users',
-		];
+		return array_keys( self::icons() );
+	}
+
+	/**
+	 * Style (solid|brands) for an icon slug; 'solid' when unknown, because
+	 * every pre-1.4.0 icon was solid.
+	 *
+	 * @param string $icon Icon slug.
+	 */
+	public static function icon_style( string $icon ): string {
+		$icons = self::icons();
+
+		return isset( $icons[ $icon ] ) && 'brands' === $icons[ $icon ] ? 'brands' : 'solid';
 	}
 
 	/**
@@ -300,6 +389,7 @@ class Hpsp_Settings {
 			'border_width'     => [ 0, 10 ],
 			'border_radius'    => [ 0, 999 ],
 			'font_size'        => [ 10, 24 ],
+			'icon_size'        => [ 0, 32 ],
 			'max_width'        => [ 240, 640 ],
 			'z_index'          => [ 1, 2147483647 ],
 		];
@@ -321,6 +411,7 @@ class Hpsp_Settings {
 			'order'           => [ 'newest', 'random' ],
 			'shadow'          => array_keys( self::shadow_presets() ),
 			'image_style'     => [ 'circle', 'rounded', 'square' ],
+			'icon_weight'     => [ 'normal', 'semibold', 'bold' ],
 		];
 
 		foreach ( $enums as $key => $allowed ) {
@@ -340,10 +431,16 @@ class Hpsp_Settings {
 		$output['user_location_attribute'] = preg_match( '/_(latitude|longitude)$/', $location_attribute ) ? '' : $location_attribute;
 
 		// Colours.
-		foreach ( [ 'bg_color', 'text_color', 'link_color', 'border_color' ] as $key ) {
+		foreach ( [ 'bg_color', 'text_color', 'link_color', 'border_color', 'icon_color' ] as $key ) {
 			$color          = isset( $input[ $key ] ) ? sanitize_hex_color( (string) $input[ $key ] ) : '';
 			$output[ $key ] = $color ? $color : $defaults[ $key ];
 		}
+
+		// Icon tile background: unlike the colours above, empty is meaningful
+		// here ("follow the link colour"), so a cleared picker stays cleared
+		// instead of snapping back to a frozen hex default.
+		$icon_bg                 = isset( $input['icon_bg_color'] ) ? sanitize_hex_color( (string) $input['icon_bg_color'] ) : '';
+		$output['icon_bg_color'] = $icon_bg ? $icon_bg : '';
 
 		// Excluded paths, one per line. No wp_unslash here: options.php has
 		// already unslashed the POST once, and a second pass eats literal

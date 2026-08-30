@@ -18,6 +18,16 @@ class Hpsp_Frontend {
 	// HivePress stores "_external" model fields as meta prefixed with "hp_".
 	const OPTOUT_META = 'hp_spf_hide_popups';
 
+	// Shared across this family of plugins on purpose: every plugin that
+	// needs Font Awesome 6/7 registers this same handle behind a
+	// wp_style_is() guard, so one copy loads however many are active.
+	const FA_STYLE_HANDLE = 'freestylr-fontawesome';
+
+	// Relative to the plugin root, and BUNDLED - see enqueue_fontawesome() below
+	// for why a CDN URL must never go here.
+	const FA_STYLE_PATH    = 'assets/vendor/fontawesome/css/all.min.css';
+	const FA_STYLE_VERSION = '7.1.0';
+
 	/**
 	 * Cached display decision for the current request.
 	 *
@@ -113,6 +123,75 @@ class Hpsp_Frontend {
 	}
 
 	/**
+	 * Register (if no sibling already has) and enqueue the shared Font
+	 * Awesome 7 stylesheet.
+	 *
+	 * HivePress core only bundles the Font Awesome 5 SOLID font, so FA6/7
+	 * icon names and every brand icon would render as blank squares without
+	 * this. Loaded under the shared `freestylr-fontawesome` handle (see the
+	 * constants above), on the front end only when icon tiles are actually in
+	 * use and on this plugin's own settings screen for the picker previews.
+	 */
+	public static function enqueue_fontawesome(): void {
+		if ( ! wp_style_is( self::FA_STYLE_HANDLE, 'registered' ) ) {
+			/*
+			 * Font Awesome 7.1.0 Free is BUNDLED, in assets/vendor/fontawesome/. Never
+			 * point this at cdnjs or any other CDN. A convenience CDN copy of a library
+			 * is the exact case the offloaded-assets rule exists to catch
+			 * (resources/security-standards.md, "Offloaded assets" - a remote asset is
+			 * only acceptable when it is a service's own required SDK from that
+			 * service's own domain), Plugin Check reported EnqueuedResourceOffloading on
+			 * every plugin that did it, and Chris ruled on 2026-08-30 that the files
+			 * ship with the plugin. It is also faster: cache partitioning (Chrome 86+,
+			 * Firefox, Safari) means a CDN copy is a cold download for every site
+			 * anyway, plus a DNS lookup and TLS handshake to a third origin.
+			 *
+			 * Layout matters. assets/vendor/fontawesome/css/all.min.css sits beside
+			 * assets/vendor/fontawesome/webfonts/, so the stock "../webfonts/" paths
+			 * inside the upstream CSS resolve unchanged. Three faces ship -
+			 * fa-solid-900.woff2, fa-brands-400.woff2 and fa-regular-400.woff2 - and
+			 * only the v4-compatibility @font-face block was removed from the CSS, so
+			 * nothing can request a file that is not there. The regular face is NOT
+			 * optional, and it costs ~19 KB: with no weight-400 face declared the
+			 * browser silently substitutes the weight-900 solid one, so a far /
+			 * fa-regular name draws a FILLED glyph instead of an outline. That shipped
+			 * between 2026-08-29 and 2026-08-30 and read as somebody picking the wrong
+			 * icon rather than as a missing font, which is why it survived a whole day.
+			 *
+			 * Pinned to 7.1.0, and every plugin sharing this handle must pin the
+			 * identical version, because only the first registration of a shared handle
+			 * wins. Full rule: resources/hivepress-ui.md, "FA6/7 and brand icons: bundle
+			 * them, never load a CDN copy (2026-08-30)".
+			 */
+			wp_register_style(
+				self::FA_STYLE_HANDLE,
+				HPSP_URL . self::FA_STYLE_PATH,
+				[],
+				self::FA_STYLE_VERSION
+			);
+		}
+
+		wp_enqueue_style( self::FA_STYLE_HANDLE );
+	}
+
+	/**
+	 * Whether any enabled event renders an icon tile, which is the only
+	 * front-end use of Font Awesome - avatars, listing images and initial
+	 * badges need no icon font.
+	 *
+	 * @param array $settings Plugin settings.
+	 */
+	protected static function uses_icon_tiles( array $settings ): bool {
+		foreach ( $settings['events'] as $event ) {
+			if ( ! empty( $event['enabled'] ) && isset( $event['image'] ) && 'icon' === $event['image'] ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Enqueue frontend assets and inline configuration.
 	 */
 	public static function enqueue(): void {
@@ -121,6 +200,10 @@ class Hpsp_Frontend {
 		}
 
 		$settings = Hpsp_Settings::get();
+
+		if ( self::uses_icon_tiles( $settings ) ) {
+			self::enqueue_fontawesome();
+		}
 
 		// filemtime() in the version guarantees fresh assets after every update.
 		wp_enqueue_style( 'hpsp-frontend', HPSP_URL . 'assets/css/social-proof.css', [], HPSP_VERSION . '.' . (int) filemtime( HPSP_DIR . 'assets/css/social-proof.css' ) );
@@ -173,6 +256,14 @@ class Hpsp_Frontend {
 		$settings = Hpsp_Settings::get();
 		$shadows  = Hpsp_Settings::shadow_presets();
 
+		// Icon weight is drawn as a text stroke in the glyph's own colour, so
+		// it thickens the strokes without needing extra font files.
+		$icon_strokes = [
+			'normal'   => '0',
+			'semibold' => '0.3px',
+			'bold'     => '0.5px',
+		];
+
 		$classes = [
 			'hpsp-root',
 			'hpsp-pos-' . $settings['position'],
@@ -192,20 +283,31 @@ class Hpsp_Frontend {
 		// substrings (wp-includes/css/dist/block-library/common.css:281), which
 		// painted a stray 3px currentColor border around the popup container.
 		$vars = [
-			'--hpsp-bg'        => $settings['bg_color'],
-			'--hpsp-fg'        => $settings['text_color'],
-			'--hpsp-link'      => $settings['link_color'],
-			'--hpsp-bd-color'  => $settings['border_color'],
-			'--hpsp-bd-width'  => absint( $settings['border_width'] ) . 'px',
-			'--hpsp-off-x'     => absint( $settings['offset_x'] ) . 'px',
-			'--hpsp-off-y'     => absint( $settings['offset_y'] ) . 'px',
-			'--hpsp-radius'    => absint( $settings['border_radius'] ) . 'px',
-			'--hpsp-shadow'    => isset( $shadows[ $settings['shadow'] ] ) ? $shadows[ $settings['shadow'] ] : $shadows['medium'],
-			'--hpsp-font-size' => absint( $settings['font_size'] ) . 'px',
-			'--hpsp-max-width' => absint( $settings['max_width'] ) . 'px',
-			'--hpsp-anim-ms'   => absint( $settings['animation_speed'] ) . 'ms',
-			'--hpsp-z'         => absint( $settings['z_index'] ),
+			'--hpsp-bg'          => $settings['bg_color'],
+			'--hpsp-fg'          => $settings['text_color'],
+			'--hpsp-link'        => $settings['link_color'],
+			'--hpsp-bd-color'    => $settings['border_color'],
+			'--hpsp-bd-width'    => absint( $settings['border_width'] ) . 'px',
+			'--hpsp-off-x'       => absint( $settings['offset_x'] ) . 'px',
+			'--hpsp-off-y'       => absint( $settings['offset_y'] ) . 'px',
+			'--hpsp-radius'      => absint( $settings['border_radius'] ) . 'px',
+			'--hpsp-shadow'      => isset( $shadows[ $settings['shadow'] ] ) ? $shadows[ $settings['shadow'] ] : $shadows['medium'],
+			'--hpsp-font-size'   => absint( $settings['font_size'] ) . 'px',
+			// 0 means automatic: 1.1x the popup text, the size icon tiles have
+			// always used, so existing sites look identical until they change it.
+			'--hpsp-icon-size'   => absint( $settings['icon_size'] ) > 0 ? absint( $settings['icon_size'] ) . 'px' : '1.1em',
+			'--hpsp-icon-fg'     => sanitize_hex_color( (string) $settings['icon_color'] ) ? $settings['icon_color'] : '#ffffff',
+			'--hpsp-icon-stroke' => isset( $icon_strokes[ $settings['icon_weight'] ] ) ? $icon_strokes[ $settings['icon_weight'] ] : '0',
+			'--hpsp-max-width'   => absint( $settings['max_width'] ) . 'px',
+			'--hpsp-anim-ms'     => absint( $settings['animation_speed'] ) . 'ms',
+			'--hpsp-z'           => absint( $settings['z_index'] ),
 		];
+
+		// Only set when chosen: with the variable absent, the stylesheet falls
+		// back to the link colour, which is what icon tiles have always used.
+		if ( '' !== (string) $settings['icon_bg_color'] && sanitize_hex_color( (string) $settings['icon_bg_color'] ) ) {
+			$vars['--hpsp-icon-bg'] = $settings['icon_bg_color'];
+		}
 
 		$style = '';
 
