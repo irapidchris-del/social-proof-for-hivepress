@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.4
+Stable tag: 1.4.10
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,7 +45,7 @@ Every event type can be switched on or off individually and has its own message 
 * Icon tiles with a large Font Awesome 6/7 icon choice (brand icons included), plus icon size, weight, colour and tile background controls
 * Timing controls: initial delay, display duration, gap between popups, popups visible at once, max per page view
 * Rotation controls: newest-first or random order, no-repeats-per-session, optional looping, and an event lifetime so the feed never goes stale
-* Visitor-friendly: closing a popup can snooze all popups for a configurable time, and logged-in users can hide popups permanently from HivePress Account → Settings
+* Visitor-friendly: closing a popup can snooze all popups for a configurable time, and logged-in users can hide popups permanently from HivePress Account â†’ Settings
 * Anonymise mode: show "Someone" instead of member names, sitewide
 * Corner offsets, plus automatic room-making when Notifications for HivePress shows a pop-up in the same corner
 * Exclude popups on specific pages with URL patterns
@@ -57,9 +57,9 @@ The plugin stores only minimal event references (user, listing and object IDs) i
 
 == Installation ==
 
-1. Upload the plugin folder to `/wp-content/plugins/` or install the ZIP via Plugins → Add New.
+1. Upload the plugin folder to `/wp-content/plugins/` or install the ZIP via Plugins â†’ Add New.
 2. Activate the plugin.
-3. Go to Settings → Social Proof to configure events, design and timing.
+3. Go to Settings â†’ Social Proof to configure events, design and timing.
 4. Use "Send test popup" to preview it on your site.
 
 HivePress is recommended but not strictly required. Without it the plugin still shows new user sign-ups.
@@ -68,17 +68,28 @@ HivePress is recommended but not strictly required. Without it the plugin still 
 
 = Why don't popups appear? =
 
-Check that the plugin is enabled in Settings → Social Proof, that at least one event type is enabled, and that events exist (use "Send test popup"). If you use a full-page cache, the popup feed is fetched via the REST API and is not affected, but make sure `/wp-json/` requests are not cached for long periods.
+Check that the plugin is enabled in Settings â†’ Social Proof, that at least one event type is enabled, and that events exist (use "Send test popup"). If you use a full-page cache, the popup feed is fetched via the REST API and is not affected, but make sure `/wp-json/` requests are not cached for long periods.
 
 = Can visitors turn popups off? =
 
-Yes. Closing a popup snoozes all popups for a configurable time, and logged-in users get a "Hide activity popups" checkbox in HivePress Account → Settings.
+Yes. Closing a popup snoozes all popups for a configurable time, and logged-in users get a "Hide activity popups" checkbox in HivePress Account â†’ Settings.
 
 = Are old events shown forever? =
 
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.4.10 =
+* Changed: icons are now drawn directly into the page instead of being loaded as a font. A
+  visitor's browser no longer downloads roughly 230 KB of stylesheet and font files just to show
+  a few small pictures, and the icons can no longer clash with the icon font HivePress loads
+  itself. Your colour and size settings work exactly as before.
+* Added: every icon in the free Font Awesome 7 set is now available, brand icons included, which
+  is around 800 more than before. Type a few letters to find one rather than scrolling a long
+  list, and each result still shows you the icon itself.
+* Changed: the settings screen loads a great deal faster, because the icon choices are fetched as
+  you search instead of every one of them being written into the page.
 
 = 1.4.4 =
 * Changed - internal formatting only. Some explanatory comments in the settings screen's script were

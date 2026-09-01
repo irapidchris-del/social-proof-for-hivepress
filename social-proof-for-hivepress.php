@@ -3,7 +3,7 @@
  * Plugin Name:       Social Proof for HivePress
  * Plugin URI:        https://github.com/irapidchris-del/social-proof-for-hivepress
  * Description:       Live, highly customisable social-proof toast popups for HivePress marketplaces: recent sign-ups, listings, bookings, reviews, sales and more.
- * Version:           1.4.4
+ * Version:           1.4.10
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Requires Plugins:  hivepress
@@ -21,7 +21,24 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
-define( 'HPSP_VERSION', '1.4.4' );
+define( 'HPSP_VERSION', '1.4.10' );
+
+/*
+ * FAFH (Font Awesome For HivePress) -- the shared icon library, BUNDLED in
+ * includes/fafh/ rather than installed separately, so this plugin still works
+ * on its own. Sibling plugins each register their copy and the highest version
+ * runs; see includes/fafh/class-fafh-loader.php.
+ *
+ * Icon tiles are drawn in the browser, so the front end is sent a small map of
+ * the icons the enabled events can actually use -- at most one per event type
+ * -- rather than a 234 KB stylesheet and webfont. The plugin's own
+ * assets/vendor/fontawesome/ copy was deleted when this landed; the webfont
+ * now lives inside the library and loads in wp-admin only, for the picker.
+ *
+ * Never edit includes/fafh/ in place. Edit tools/fafh/ and run
+ * tools\sync-fafh.ps1, which keeps every copy byte-identical.
+ */
+require_once __DIR__ . '/includes/fafh/bootstrap.php';
 define( 'HPSP_FILE', __FILE__ );
 define( 'HPSP_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HPSP_URL', plugin_dir_url( __FILE__ ) );

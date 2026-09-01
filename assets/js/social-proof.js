@@ -130,6 +130,51 @@
 		return badge;
 	}
 
+	/**
+	 * Builds an <svg> element for one icon name, or returns null.
+	 *
+	 * The page sends "viewBox|path" pairs, not markup, and this builds the
+	 * nodes with createElementNS/setAttribute. Nothing is ever parsed as HTML,
+	 * so innerHTML is not involved and the icon name is only ever used as an
+	 * object key -- it is never concatenated into anything that gets parsed.
+	 *
+	 * hasOwnProperty rather than a bare lookup: an icon named "constructor"
+	 * or "__proto__" would otherwise return a truthy non-string off the
+	 * prototype chain and throw on .split().
+	 */
+	function makeGlyph(name) {
+		var icons = (cfg && cfg.icons) || {};
+
+		if (!Object.prototype.hasOwnProperty.call(icons, name)) {
+			return null;
+		}
+
+		var parts = String(icons[name]).split('|');
+
+		if (parts.length !== 2 || !parts[0] || !parts[1]) {
+			return null;
+		}
+
+		var ns = 'http://www.w3.org/2000/svg';
+		var svg = document.createElementNS(ns, 'svg');
+
+		svg.setAttribute('viewBox', parts[0]);
+		svg.setAttribute('class', 'fafh-icon__svg');
+		svg.setAttribute('aria-hidden', 'true');
+		svg.setAttribute('focusable', 'false');
+
+		var path = document.createElementNS(ns, 'path');
+
+		// Without this a stroke-width in px is read in USER units (1/512 em,
+		// since every Font Awesome viewBox is "0 0 W 512"), so the icon-weight
+		// setting would render invisibly.
+		path.setAttribute('vector-effect', 'non-scaling-stroke');
+		path.setAttribute('d', parts[1]);
+		svg.appendChild(path);
+
+		return svg;
+	}
+
 	function buildToast(ev) {
 		var toast = document.createElement('div');
 
@@ -150,19 +195,27 @@
 			toast.appendChild(img);
 		} else if (ev.icon && /^[a-z0-9-]+$/.test(ev.icon)) {
 			// Icon names are validated server-side against a fixed list; the
-			// pattern test above is belt and braces before touching className.
+			// pattern test above is belt and braces.
 			var tile = document.createElement('span');
 
 			tile.className = 'hpsp-toast__img hpsp-toast__icon';
 
 			var glyph = document.createElement('i');
 
-			// fa-solid / fa-brands resolve against the Font Awesome 7
-			// stylesheet the plugin enqueues whenever icon tiles are in use;
-			// FA7 also honours the old fas/fab aliases, so payloads cached by
-			// an earlier version keep rendering.
-			glyph.className = (ev.iconStyle === 'brands' ? 'fa-brands' : 'fa-solid') + ' fa-' + ev.icon;
+			glyph.className = 'fafh-icon';
 			glyph.setAttribute('aria-hidden', 'true');
+
+			var svg = makeGlyph(ev.icon);
+
+			if (svg) {
+				glyph.appendChild(svg);
+			} else {
+				// No glyph data: either the library did not load, or the payload
+				// was cached before this icon was added to the map. Fall back to
+				// the Font Awesome classes, which the fallback stylesheet draws.
+				glyph.className = (ev.iconStyle === 'brands' ? 'fa-brands' : 'fa-solid') + ' fa-' + ev.icon;
+			}
+
 			tile.appendChild(glyph);
 			toast.appendChild(tile);
 		} else if (ev.initial) {

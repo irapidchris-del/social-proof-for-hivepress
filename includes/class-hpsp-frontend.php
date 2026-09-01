@@ -18,15 +18,11 @@ class Hpsp_Frontend {
 	// HivePress stores "_external" model fields as meta prefixed with "hp_".
 	const OPTOUT_META = 'hp_spf_hide_popups';
 
-	// Shared across this family of plugins on purpose: every plugin that
-	// needs Font Awesome 6/7 registers this same handle behind a
-	// wp_style_is() guard, so one copy loads however many are active.
-	const FA_STYLE_HANDLE = 'freestylr-fontawesome';
-
-	// Relative to the plugin root, and BUNDLED - see enqueue_fontawesome() below
-	// for why a CDN URL must never go here.
-	const FA_STYLE_PATH    = 'assets/vendor/fontawesome/css/all.min.css';
-	const FA_STYLE_VERSION = '7.1.0';
+	// FA_STYLE_HANDLE, FA_STYLE_PATH and FA_STYLE_VERSION were removed on
+	// 2026-09-01. They named a bundled Font Awesome webfont that no longer
+	// exists: FAFH 1.2.0 replaced it with an admin shim that converts a
+	// picker's <i class="fas fa-star"> into inline SVG. Nothing registers that
+	// handle any more, so do not reinstate them.
 
 	/**
 	 * Cached display decision for the current request.
@@ -123,55 +119,18 @@ class Hpsp_Frontend {
 	}
 
 	/**
-	 * Register (if no sibling already has) and enqueue the shared Font
-	 * Awesome 7 stylesheet.
+	 * Load what wp-admin needs to draw icons in the picker.
 	 *
-	 * HivePress core only bundles the Font Awesome 5 SOLID font, so FA6/7
-	 * icon names and every brand icon would render as blank squares without
-	 * this. Loaded under the shared `freestylr-fontawesome` handle (see the
-	 * constants above), on the front end only when icon tiles are actually in
-	 * use and on this plugin's own settings screen for the picker previews.
+	 * Called from the settings screen only (Hpsp_Admin::enqueue). The front end
+	 * draws inline SVG from a localised map and must not reach this.
+	 *
+	 * Named enqueue_fontawesome() still, because it is a public static that a
+	 * site could be calling; there is no font behind it any more.
 	 */
 	public static function enqueue_fontawesome(): void {
-		if ( ! wp_style_is( self::FA_STYLE_HANDLE, 'registered' ) ) {
-			/*
-			 * Font Awesome 7.1.0 Free is BUNDLED, in assets/vendor/fontawesome/. Never
-			 * point this at cdnjs or any other CDN. A convenience CDN copy of a library
-			 * is the exact case the offloaded-assets rule exists to catch
-			 * (resources/security-standards.md, "Offloaded assets" - a remote asset is
-			 * only acceptable when it is a service's own required SDK from that
-			 * service's own domain), Plugin Check reported EnqueuedResourceOffloading on
-			 * every plugin that did it, and Chris ruled on 2026-08-30 that the files
-			 * ship with the plugin. It is also faster: cache partitioning (Chrome 86+,
-			 * Firefox, Safari) means a CDN copy is a cold download for every site
-			 * anyway, plus a DNS lookup and TLS handshake to a third origin.
-			 *
-			 * Layout matters. assets/vendor/fontawesome/css/all.min.css sits beside
-			 * assets/vendor/fontawesome/webfonts/, so the stock "../webfonts/" paths
-			 * inside the upstream CSS resolve unchanged. Three faces ship -
-			 * fa-solid-900.woff2, fa-brands-400.woff2 and fa-regular-400.woff2 - and
-			 * only the v4-compatibility @font-face block was removed from the CSS, so
-			 * nothing can request a file that is not there. The regular face is NOT
-			 * optional, and it costs ~19 KB: with no weight-400 face declared the
-			 * browser silently substitutes the weight-900 solid one, so a far /
-			 * fa-regular name draws a FILLED glyph instead of an outline. That shipped
-			 * between 2026-08-29 and 2026-08-30 and read as somebody picking the wrong
-			 * icon rather than as a missing font, which is why it survived a whole day.
-			 *
-			 * Pinned to 7.1.0, and every plugin sharing this handle must pin the
-			 * identical version, because only the first registration of a shared handle
-			 * wins. Full rule: resources/hivepress-ui.md, "FA6/7 and brand icons: bundle
-			 * them, never load a CDN copy (2026-08-30)".
-			 */
-			wp_register_style(
-				self::FA_STYLE_HANDLE,
-				HPSP_URL . self::FA_STYLE_PATH,
-				[],
-				self::FA_STYLE_VERSION
-			);
+		if ( class_exists( 'FAFH' ) ) {
+			FAFH::enqueue_admin();
 		}
-
-		wp_enqueue_style( self::FA_STYLE_HANDLE );
 	}
 
 	/**
@@ -192,6 +151,47 @@ class Hpsp_Frontend {
 	}
 
 	/**
+	 * Glyph data for every icon the enabled events can render.
+	 *
+	 * At most one icon per event type, so this is a handful of entries even on
+	 * a site with everything switched on -- not the 71 the picker offers, and
+	 * emphatically not the 1,918 the library holds.
+	 *
+	 * The style is passed explicitly rather than left to FAFH's bare-name
+	 * resolution: 19 of the slugs in Hpsp_Settings::icons() exist in BOTH the
+	 * solid and regular families, and while a bare name happens to resolve to
+	 * solid first, that is luck rather than a guarantee.
+	 *
+	 * @param array $settings Plugin settings.
+	 * @return array Canonical icon name => "viewBox|path".
+	 */
+	protected static function icon_map( array $settings ): array {
+		if ( ! class_exists( 'FAFH' ) ) {
+			return [];
+		}
+
+		$wanted = [];
+
+		foreach ( $settings['events'] as $event ) {
+			if ( empty( $event['enabled'] ) || ! isset( $event['image'] ) || 'icon' !== $event['image'] ) {
+				continue;
+			}
+
+			$icon = isset( $event['icon'] ) ? (string) $event['icon'] : '';
+
+			// Same allow-list the payload builder uses, so the map can never
+			// carry an icon an event would not be permitted to ask for.
+			if ( '' === $icon || ! in_array( $icon, Hpsp_Settings::allowed_icons(), true ) ) {
+				continue;
+			}
+
+			$wanted[ $icon ] = Hpsp_Settings::icon_style( $icon );
+		}
+
+		return FAFH::map( $wanted );
+	}
+
+	/**
 	 * Enqueue frontend assets and inline configuration.
 	 */
 	public static function enqueue(): void {
@@ -201,7 +201,14 @@ class Hpsp_Frontend {
 
 		$settings = Hpsp_Settings::get();
 
-		if ( self::uses_icon_tiles( $settings ) ) {
+		// Icon tiles are inline SVG now, so what the page needs is FAFH's tiny
+		// sizing sheet, NOT the webfont. Calling enqueue_fontawesome() here would
+		// put ~234 KB back on every page that shows a popup.
+		if ( self::uses_icon_tiles( $settings ) && class_exists( 'FAFH' ) ) {
+			FAFH::enqueue_style();
+		} elseif ( self::uses_icon_tiles( $settings ) ) {
+			// Fallback only: without the library there is no SVG to draw, so the
+			// script falls back to Font Awesome classes and needs the stylesheet.
 			self::enqueue_fontawesome();
 		}
 
@@ -210,6 +217,10 @@ class Hpsp_Frontend {
 		wp_enqueue_script( 'hpsp-frontend', HPSP_URL . 'assets/js/social-proof.js', [], HPSP_VERSION . '.' . (int) filemtime( HPSP_DIR . 'assets/js/social-proof.js' ), true );
 
 		$config = [
+			// Name => "viewBox|path". Deliberately not finished <svg> markup:
+			// this form carries no angle brackets, so nothing crossing into the
+			// page can be mistaken for HTML, and it is ~120 bytes smaller each.
+			'icons'           => self::icon_map( $settings ),
 			'endpoint'        => esc_url_raw( rest_url( Hpsp_Rest::API_NAMESPACE . '/events' ) ),
 			'viewer'          => get_current_user_id(),
 			'mobile'          => ! empty( $settings['show_on_mobile'] ),

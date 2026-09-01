@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir -p build/social-proof-for-hivepress
           cp social-proof-for-hivepress.php uninstall.php readme.txt build/social-proof-for-hivepress/
-          cp -r includes assets build/social-proof-for-hivepress/
+          cp -r includes assets languages build/social-proof-for-hivepress/
           if [ -d languages ]; then cp -r languages build/social-proof-for-hivepress/; fi
           cd build
           zip -r social-proof-for-hivepress.zip social-proof-for-hivepress

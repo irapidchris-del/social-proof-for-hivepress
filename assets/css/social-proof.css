@@ -82,11 +82,20 @@
 	font-size: var(--hpsp-icon-size, 1.1em);
 }
 
-/* Icon weight: a text stroke in the glyph's own colour thickens the strokes
- * without extra font files. paint-order keeps the stroke behind the fill so
- * thin counters do not close up. */
+/* Icon weight: a stroke in the glyph's own colour thickens it without extra
+ * font files. paint-order keeps the stroke behind the fill so thin counters do
+ * not close up.
+ *
+ * Two declarations because there are two renderers. -webkit-text-stroke
+ * thickens a FONT glyph and does nothing to an SVG; stroke/stroke-width do the
+ * reverse. Both are inherited, so the wrapper carries them and whichever one
+ * drew the icon picks its pair up. The SVG's path sets
+ * vector-effect="non-scaling-stroke", without which stroke-width would be read
+ * in user units (1/512 em) and 0.3px would be invisible. */
 .hpsp-toast__icon i {
 	-webkit-text-stroke: var(--hpsp-icon-stroke, 0) currentColor;
+	stroke: currentColor;
+	stroke-width: var(--hpsp-icon-stroke, 0);
 	paint-order: stroke fill;
 }
 
