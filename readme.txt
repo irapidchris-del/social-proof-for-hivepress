@@ -81,7 +81,7 @@ No. Events expire after the configured lifetime (48 hours by default) and the qu
 == Changelog ==
 
 = 1.4.13 =
-* Changed: on the settings tab the help icon now sits directly after each label, and its tooltip opens to the right at full width instead of being cut into a narrow strip to the left. The same placement is used across every extension in this family.
+* Housekeeping: carries the settings-screen stylesheet block shared across this family of extensions, so the copies stay identical. Nothing on this plugin's own settings page changes.
 
 = 1.4.12 =
 * Fixed: the arrows in this readme showed stray characters around them. Nothing in the plugin itself changes.
