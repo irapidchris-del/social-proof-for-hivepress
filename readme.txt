@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.12
+Stable tag: 1.4.13
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,6 +79,9 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.4.13 =
+* Changed: on the settings tab the help icon now sits directly after each label, and its tooltip opens to the right at full width instead of being cut into a narrow strip to the left. The same placement is used across every extension in this family.
 
 = 1.4.12 =
 * Fixed: the arrows in this readme showed stray characters around them. Nothing in the plugin itself changes.
