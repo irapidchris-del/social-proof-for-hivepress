@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.10
+Stable tag: 1.4.11
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,6 +79,13 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.4.11 =
+* Changed: the shared icon library is updated to the version that fixed two faults found in
+  Account Menu Enhancer 3.4.0 - a repeater row inheriting its neighbour's icon on save, and a
+  re-picked icon drawing the old glyph enlarged. Neither could happen on this extension's own
+  screens, and nothing here changes; it is released so that every combination of extensions carries
+  the corrected copy, whichever one a site happens to load it from.
 
 = 1.4.10 =
 * Changed: icons are now drawn directly into the page instead of being loaded as a font. A
