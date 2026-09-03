@@ -4,7 +4,7 @@ Tags: hivepress, social proof, notifications, popups, marketplace
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.13
+Stable tag: 1.4.14
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,6 +79,11 @@ Yes. Closing a popup snoozes all popups for a configurable time, and logged-in u
 No. Events expire after the configured lifetime (48 hours by default) and the queue keeps only the most recent events.
 
 == Changelog ==
+
+= 1.4.14 =
+* Fixed: updating two of these extensions one after the other could fail on the second with "up to date" until Check for updates was pressed again. WordPress rebuilds its update list after each update by asking wordpress.org first, and gives up on the whole list when that call is slow; the plugin now keeps its own update in the list regardless.
+* Changed: a release found more than an hour ago is refreshed in the background whenever the Plugins screen is opened, so the newest release is offered rather than an intermediate one.
+* New: a Check for updates bulk action on the Plugins screen, which checks every selected extension in one go, and the row that says Updating no longer shrinks on phones.
 
 = 1.4.13 =
 * Housekeeping: carries the settings-screen stylesheet block shared across this family of extensions, so the copies stay identical. Nothing on this plugin's own settings page changes.
