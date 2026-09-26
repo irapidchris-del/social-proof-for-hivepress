@@ -781,8 +781,8 @@ class Hpsp_Admin {
 				}
 
 				// Geolocation's latitude/longitude companions are internal
-				// coordinate fields; picking one rendered "in 55.9533"
-				// (found on staging), so they are not offered.
+				// coordinate fields; picking one rendered "in 55.9533", so they
+				// are not offered.
 				if ( preg_match( '/_(latitude|longitude)$/', $name ) ) {
 					continue;
 				}

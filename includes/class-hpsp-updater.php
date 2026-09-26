@@ -598,8 +598,8 @@ class Hpsp_Updater {
 		// With no reachable release, still file a self-describing entry so the
 		// update transient carries our slug: without one WordPress has nothing
 		// under response OR no_update, and the Plugins row silently degrades
-		// from "View details" to a bare "Visit plugin site" link (found on
-		// staging while the repository was still private).
+		// from "View details" to a bare "Visit plugin site" link (for example
+		// while the repository is still private).
 		if ( ! $release ) {
 			return [
 				'id'      => 'https://github.com/' . self::REPO,
@@ -675,7 +675,7 @@ class Hpsp_Updater {
 		if ( $release ) {
 			// Never show a version below the installed one: between pushing a
 			// build and publishing its release, the latest published number is
-			// older, and the popup read like a downgrade (found on staging).
+			// older, and the popup read like a downgrade.
 			if ( version_compare( $release['version'], HPSP_VERSION, '>' ) ) {
 				$information->version = $release['version'];
 			}
@@ -685,7 +685,7 @@ class Hpsp_Updater {
 
 			if ( $release['notes'] ) {
 				// Release notes are Markdown; render them rather than showing
-				// literal asterisks (found on staging).
+				// literal asterisks.
 				$information->sections['changelog'] = self::format_release_notes( $release['notes'] );
 			} else {
 				$information->sections['changelog'] = '<p>' . esc_html__( 'See the GitHub releases page for the changelog.', 'social-proof-for-hivepress' ) . '</p>';

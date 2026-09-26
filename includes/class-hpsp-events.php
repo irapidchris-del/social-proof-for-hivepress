@@ -650,7 +650,7 @@ class Hpsp_Events {
 			// enough: HivePress's own cancel action sets a "canceled" flag
 			// (hp_canceled meta) and can leave the post published, so a
 			// cancelled booking kept advertising itself for the whole event
-			// lifetime (found on staging).
+			// lifetime.
 			case 'booking_confirmed':
 				if ( ! $object_id || 'publish' !== get_post_status( $object_id ) ) {
 					return null;
@@ -713,7 +713,7 @@ class Hpsp_Events {
 
 			// Test popups report no actor: the browser filters out a viewer's
 			// own activity, which otherwise made "Send test popup" invisible
-			// to the very admin who pressed it (found on staging). Anonymised
+			// to the very admin who pressed it. Anonymised
 			// feeds report none either, so user IDs never leave the site.
 			'actor'     => ( 'test' === $type || $anonymise ) ? 0 : $user_id,
 			'time'      => isset( $event['time'] ) ? (int) $event['time'] : time(),
@@ -1033,7 +1033,7 @@ class Hpsp_Events {
 
 		// Anonymised popups never show a member's own picture or the fallback
 		// avatar: a recognisable photo beside the word "Someone" implies that
-		// person did it (found on staging). The admin-chosen anonymous image
+		// person did it. The admin-chosen anonymous image
 		// shows instead, or the neutral initial badge when none is set.
 		if ( ! empty( $settings['anonymise'] ) ) {
 			$anonymous = self::attachment_url( $settings, 'anonymous_avatar' );

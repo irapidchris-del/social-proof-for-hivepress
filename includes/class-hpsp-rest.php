@@ -61,7 +61,7 @@ class Hpsp_Rest {
 
 		// Belt and braces at serve time: cached payloads (or a cache layer
 		// that outlives the intended TTL) must never surface expired events.
-		// A stale test popup was seen on staging long past its 5-minute life.
+		// A stale test popup was otherwise seen long past its 5-minute life.
 		$lifetime = max( 1, absint( $settings['event_lifetime'] ) ) * HOUR_IN_SECONDS;
 		$now      = time();
 
@@ -89,7 +89,7 @@ class Hpsp_Rest {
 		$response = new WP_REST_Response( $data, 200 );
 
 		// No max-age here: WordPress and hosting proxies append their own, and
-		// a duplicated max-age=0 was observed on staging. no-store covers it.
+		// a duplicated max-age=0 can result. no-store covers it.
 		$response->header( 'Cache-Control', 'no-store, no-cache, must-revalidate' );
 
 		return $response;
