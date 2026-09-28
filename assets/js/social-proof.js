@@ -193,7 +193,7 @@
 				}
 			});
 			toast.appendChild(img);
-		} else if (ev.icon && /^[a-z0-9-]+$/.test(ev.icon)) {
+		} else if (ev.icon && /^(?:far fa-)?[a-z0-9-]+$/.test(ev.icon)) {
 			// Icon names are validated server-side against a fixed list; the
 			// pattern test above is belt and braces.
 			var tile = document.createElement('span');
@@ -213,7 +213,9 @@
 				// No glyph data: either the library did not load, or the payload
 				// was cached before this icon was added to the map. Fall back to
 				// the Font Awesome classes, which the fallback stylesheet draws.
-				glyph.className = (ev.iconStyle === 'brands' ? 'fa-brands' : 'fa-solid') + ' fa-' + ev.icon;
+				glyph.className = ev.icon.indexOf('far fa-') === 0
+					? 'fa-regular fa-' + ev.icon.slice(7)
+					: (ev.iconStyle === 'brands' ? 'fa-brands' : 'fa-solid') + ' fa-' + ev.icon;
 			}
 
 			tile.appendChild(glyph);

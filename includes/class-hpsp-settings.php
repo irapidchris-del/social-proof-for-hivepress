@@ -230,7 +230,10 @@ class Hpsp_Settings {
 	}
 
 	/**
-	 * Icons offered for popup tiles, as slug => style (solid|brands).
+	 * Icons offered for popup tiles, as value => style (solid|regular|brands).
+	 *
+	 * Each solid icon that also has an outline version is followed by it,
+	 * stored as "far fa-{slug}" (see outline_icons()).
 	 *
 	 * Rendered as `fa-solid fa-{slug}` / `fa-brands fa-{slug}` against the
 	 * Font Awesome 7 stylesheet the plugin loads itself (see
@@ -243,6 +246,66 @@ class Hpsp_Settings {
 	 * unchanged.
 	 */
 	public static function icons(): array {
+		$icons = [];
+
+		foreach ( self::base_icons() as $slug => $style ) {
+			$icons[ $slug ] = $style;
+
+			if ( 'solid' === $style && in_array( $slug, self::outline_icons(), true ) ) {
+				$icons[ 'far fa-' . $slug ] = 'regular';
+			}
+		}
+
+		return $icons;
+	}
+
+	/**
+	 * Slugs from base_icons() that also come in an outline (regular) version.
+	 *
+	 * Read from the bundled icon library, so the list cannot offer an outline
+	 * that does not exist. Without the library there are none.
+	 */
+	protected static function outline_icons(): array {
+		static $outline = null;
+
+		if ( null !== $outline ) {
+			return $outline;
+		}
+
+		// Not cached until the library has loaded, so an early call cannot pin an empty list.
+		if ( ! class_exists( 'FAFH' ) ) {
+			return [];
+		}
+
+		$outline = [];
+
+		foreach ( self::base_icons() as $slug => $style ) {
+			if ( 'solid' === $style && '' !== FAFH::outline( $slug ) ) {
+				$outline[] = $slug;
+			}
+		}
+
+		return $outline;
+	}
+
+	/**
+	 * Picker label for an icon value: the slug, marked when it is the outline.
+	 *
+	 * @param string $icon Icon value.
+	 */
+	public static function icon_label( string $icon ): string {
+		if ( 0 === strpos( $icon, 'far fa-' ) ) {
+			/* translators: %s: icon name. */
+			return sprintf( __( '%s (outline)', 'social-proof-for-hivepress' ), substr( $icon, 7 ) );
+		}
+
+		return $icon;
+	}
+
+	/**
+	 * The curated icons, as slug => style (solid|brands).
+	 */
+	protected static function base_icons(): array {
 		return [
 			// People & community.
 			'user-plus'         => 'solid',
@@ -335,15 +398,15 @@ class Hpsp_Settings {
 	}
 
 	/**
-	 * Style (solid|brands) for an icon slug; 'solid' when unknown, because
-	 * every pre-1.4.0 icon was solid.
+	 * Style (solid|regular|brands) for an icon value; 'solid' when unknown,
+	 * because every pre-1.4.0 icon was solid.
 	 *
-	 * @param string $icon Icon slug.
+	 * @param string $icon Icon value.
 	 */
 	public static function icon_style( string $icon ): string {
 		$icons = self::icons();
 
-		return isset( $icons[ $icon ] ) && 'brands' === $icons[ $icon ] ? 'brands' : 'solid';
+		return isset( $icons[ $icon ] ) && in_array( $icons[ $icon ], [ 'brands', 'regular' ], true ) ? $icons[ $icon ] : 'solid';
 	}
 
 	/**
@@ -458,7 +521,8 @@ class Hpsp_Settings {
 
 			$template = isset( $event['template'] ) ? trim( wp_kses( (string) $event['template'], self::allowed_template_tags() ) ) : '';
 			$image    = isset( $event['image'] ) ? sanitize_key( $event['image'] ) : '';
-			$icon     = isset( $event['icon'] ) ? sanitize_key( $event['icon'] ) : '';
+			// Not sanitize_key(): it strips the space from an outline value ("far fa-heart").
+			$icon = isset( $event['icon'] ) ? trim( (string) preg_replace( '/[^a-z0-9 -]/', '', strtolower( (string) $event['icon'] ) ) ) : '';
 
 			// A template identical to the built-in default stores as '' so the
 			// wording stays translatable and "blank the box" means "reset".

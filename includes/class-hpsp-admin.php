@@ -646,38 +646,50 @@ class Hpsp_Admin {
 	 * Icon picker: a toggle button showing the current glyph, opening a grid
 	 * of radio options that each render their actual Font Awesome glyph.
 	 *
-	 * Previews render as `fa-solid fa-{slug}` / `fa-brands fa-{slug}` against
-	 * the shared Font Awesome 7 stylesheet enqueued in enqueue() - HivePress's
-	 * own FA5 bundle has no brand glyphs and none of the FA6/7 names (see
-	 * Hpsp_Settings::icons()). The `fa-solid`/`fa-brands` class on the
-	 * option carries the style to admin.js so the toggle button can mirror
-	 * the chosen glyph.
+	 * Previews render as `fa-solid`, `fa-regular` (outline) or `fa-brands`
+	 * plus `fa-{slug}`, which the icon library's admin script draws as inline
+	 * SVG (see Hpsp_Settings::icons()). The class on the option carries the
+	 * style to admin.js so the toggle button can mirror the chosen glyph.
 	 *
 	 * @param string $input_name Full input name attribute for the icon value.
 	 * @param string $type       Event type, used for unique ids.
-	 * @param string $current    Currently selected icon slug.
+	 * @param string $current    Currently selected icon value.
 	 */
 	protected static function icon_picker( string $input_name, string $type, string $current ): void {
-		$icons         = Hpsp_Settings::icons();
-		$current       = isset( $icons[ $current ] ) ? $current : (string) key( $icons );
-		$current_class = ( 'brands' === $icons[ $current ] ? 'fa-brands' : 'fa-solid' ) . ' fa-' . $current;
+		$icons   = Hpsp_Settings::icons();
+		$current = isset( $icons[ $current ] ) ? $current : (string) key( $icons );
 		?>
 		<span class="hpsp-icon-picker" data-hpsp-icon-picker="<?php echo esc_attr( $type ); ?>">
 			<button type="button" class="button hpsp-icon-toggle" aria-expanded="false">
-				<i class="hpsp-glyph <?php echo esc_attr( $current_class ); ?>" aria-hidden="true"></i>
-				<span class="hpsp-icon-toggle__name"><?php echo esc_html( $current ); ?></span>
+				<i class="hpsp-glyph <?php echo esc_attr( self::glyph_class( $current, $icons[ $current ] ) ); ?>" aria-hidden="true"></i>
+				<span class="hpsp-icon-toggle__name"><?php echo esc_html( Hpsp_Settings::icon_label( $current ) ); ?></span>
 			</button>
 			<span class="hpsp-icon-grid" hidden>
 				<?php foreach ( $icons as $icon_name => $icon_group ) : ?>
 					<label class="hpsp-icon-option">
 						<input type="radio" name="<?php echo esc_attr( $input_name ); ?>" value="<?php echo esc_attr( $icon_name ); ?>" <?php checked( $current, $icon_name ); ?>>
-						<i class="hpsp-glyph <?php echo esc_attr( ( 'brands' === $icon_group ? 'fa-brands' : 'fa-solid' ) . ' fa-' . $icon_name ); ?>" aria-hidden="true"></i>
-						<span class="hpsp-icon-option__name"><?php echo esc_html( $icon_name ); ?></span>
+						<i class="hpsp-glyph <?php echo esc_attr( self::glyph_class( $icon_name, $icon_group ) ); ?>" aria-hidden="true"></i>
+						<span class="hpsp-icon-option__name"><?php echo esc_html( Hpsp_Settings::icon_label( $icon_name ) ); ?></span>
 					</label>
 				<?php endforeach; ?>
 			</span>
 		</span>
 		<?php
+	}
+
+	/**
+	 * Preview classes for one icon value. `fa-regular` is the style the icon
+	 * library's admin script honours, so an outline previews as the outline.
+	 *
+	 * @param string $icon  Icon value.
+	 * @param string $style solid|regular|brands.
+	 */
+	protected static function glyph_class( string $icon, string $style ): string {
+		if ( 'regular' === $style && 0 === strpos( $icon, 'far fa-' ) ) {
+			return 'fa-regular fa-' . substr( $icon, 7 );
+		}
+
+		return ( 'brands' === $style ? 'fa-brands' : 'fa-solid' ) . ' fa-' . $icon;
 	}
 
 	/**
